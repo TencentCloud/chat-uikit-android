@@ -1,0 +1,13 @@
+**/.idea/
+**/.iml
+**/local.properties
+**/build/
+**/.gradle/
+**/.externalNativeBuild/
+**/.settings/
+**/.cxx/
+**/.classpath
+**/.project
+**/.DS_Store
+**/caches/
+**/daemon/
