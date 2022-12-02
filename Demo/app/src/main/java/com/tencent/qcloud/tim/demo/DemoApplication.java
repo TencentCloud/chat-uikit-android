@@ -56,7 +56,7 @@ public class DemoApplication extends Application {
     private int sdkAppId = 0;
     private OfflinePushLocalReceiver offlinePushLocalReceiver = null;
     private OfflinePushAPIDemo offlinePushAPIDemo;
-    public static int tuikit_demo_style = 0; //0,classic; 1,minimalist
+    public static int tuikit_demo_style = 1; //0,classic; 1,minimalist
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
@@ -87,7 +87,7 @@ public class DemoApplication extends Application {
     }
     private void initDemoStyle() {
         final SharedPreferences sharedPreferences = getSharedPreferences("TUIKIT_DEMO_SETTINGS", MODE_PRIVATE);
-        tuikit_demo_style = sharedPreferences.getInt("tuikit_demo_style", 0);
+        tuikit_demo_style = sharedPreferences.getInt("tuikit_demo_style", 1);
     }
 
     private void initBugly() {
