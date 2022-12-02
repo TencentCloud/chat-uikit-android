@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_top">置顶聊天</string>
+    <string name="chat_delete">删除聊天</string>
+    <string name="quit_chat_top">取消置顶</string>
+    <string name="mark_unread">标为未读</string>
+    <string name="mark_read">标为已读</string>
+    <string name="not_display">不显示</string>
+
+    <string name="forward_select_new_chat">创建新聊天</string>
+    <string name="forward_select_from_contact">从通讯录选择</string>
+    <string name="titlebar_cancle">取消</string>
+    <string name="titlebar_close">关闭</string>
+    <string name="forward_alert_title">您确定进行转发吗?</string>
+    <string name="forward_list_label">最近聊天</string>
+    <string name="ui_at_all">[@所有人]</string>
+    <string name="ui_at_me">[有人@我]</string>
+    <string name="ui_at_all_me">[@所有人][有人@我]</string>
+    <string name="drafts">[草稿]</string>
+    <string name="titlebar_mutiselect">多选</string>
+    <string name="message_num">条</string>
+
+    <string name="folded_group_chat">折叠的群聊</string>
+</resources>
