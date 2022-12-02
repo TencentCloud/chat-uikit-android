@@ -1,6 +1,18 @@
 [English](./README.md) | 简体中文
 
-本文介绍如何快速跑通即时通信 IM `Android` 端的体验 Demo。([点此处跳转到 iOS 端](https://github.com/TencentCloud/chat-uikit-ios))
+本文介绍如何快速跑通 Android 平台即时通信 IM 的体验 Demo。 对于其他平台，请参考文档：
+
+[**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)
+
+[**chat-uikit-flutter**](https://github.com/TencentCloud/chat-uikit-flutter)
+
+[**chat-uikit-vue**](https://github.com/TencentCloud/chat-uikit-vue)
+
+[**chat-uikit-react**](https://github.com/TencentCloud/chat-uikit-react)
+
+[**chat-uikit-uniapp**](https://github.com/TencentCloud/chat-uikit-uniapp)
+
+[**chat-uikit-wechat**](https://github.com/TencentCloud/chat-uikit-wechat)
 
 ## 步骤1：创建应用
 1. 登录即时通信 IM [控制台](https://console.cloud.tencent.com/avc)。
@@ -38,7 +50,7 @@
 
  >本文以使用 Android Studio 打开 Android 工程为例。
   >
-1. 设置 `GenerateTestUserSig` 文件中的相关参数：
+3. 设置 `GenerateTestUserSig` 文件中的相关参数：
  - SDKAPPID：请设置为 **步骤1** 中获取的实际应用 SDKAppID。
  - SECRETKEY：请设置为 **步骤2** 中获取的实际密钥信息。
 

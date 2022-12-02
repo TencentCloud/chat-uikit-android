@@ -1,6 +1,19 @@
 English | [简体中文](./README_ZH.md)
 
-This document introduces how to quickly run through the IM demo on the Android platform. ([Click here to jump to the iOS side](https://github.com/TencentCloud/chat-uikit-ios))
+This document introduces how to quickly run through the IM demo on the Android platform.
+For the other platforms, please refer to document：
+
+[**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)
+
+[**chat-uikit-flutter**](https://github.com/TencentCloud/chat-uikit-flutter)
+
+[**chat-uikit-vue**](https://github.com/TencentCloud/chat-uikit-vue)
+
+[**chat-uikit-react**](https://github.com/TencentCloud/chat-uikit-react)
+
+[**chat-uikit-uniapp**](https://github.com/TencentCloud/chat-uikit-uniapp)
+
+[**chat-uikit-wechat**](https://github.com/TencentCloud/chat-uikit-wechat)
 
 ## Step 1. Create an App
 1. Log in to the [IM console](https://intl.cloud.tencent.com/login).
@@ -38,7 +51,7 @@ This document introduces how to quickly run through the IM demo on the Android p
 
  >In this document, an Android project is opened by using Android Studio as an example.
   >
-1. Set relevant parameters in the `GenerateTestUserSig` file:
+3. Set relevant parameters in the `GenerateTestUserSig` file:
  - SDKAPPID: set it to the SDKAppID obtained in **step 1**.
  - SECRETKEY: enter the actual key information obtained in **step 2**.
 
