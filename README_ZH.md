@@ -54,8 +54,7 @@
  - SDKAPPID：请设置为 **步骤1** 中获取的实际应用 SDKAppID。
  - SECRETKEY：请设置为 **步骤2** 中获取的实际密钥信息。
 
-![](https://qcloudimg.tencent-cloud.cn/raw/c3e75cba79968ebce176d9e97b3bd7bf.png)
-
+<img width="1576" alt="7db2b7abfe1018f0b2612d4c49f95ab3" src="https://user-images.githubusercontent.com/85340225/205882619-01f54454-2db1-42ab-80a7-a5cab98149ab.png">
 
 >本文提到的获取 UserSig 的方案是在客户端代码中配置 SECRETKEY，该方法中 SECRETKEY 很容易被反编译逆向破解，一旦您的密钥泄露，攻击者就可以盗用您的腾讯云流量，因此**该方法仅适合本地跑通 Demo 和功能调试**。
 >正确的 UserSig 签发方式是将 UserSig 的计算代码集成到您的服务端，并提供面向 App 的接口，在需要 UserSig 时由您的 App 向业务服务器发起请求获取动态 UserSig。更多详情请参见 [服务端生成 UserSig](https://cloud.tencent.com/document/product/269/32688#GeneratingdynamicUserSig)。
@@ -74,15 +73,15 @@ api project(':tuicallkit')
 操作完上述步骤后会发现，Demo 中的音频通话、视频通话入口均被隐藏。
 会话界面屏蔽 TUICallKit 前后的效果：
 
-| 修改之前 | 修改之后|
+| 修改前 | 修改后|
 |--------|------|
-|<img src="https://im.sdk.qcloud.com/tools/resource/tuicalling/android/GitHubChatAddTUICallKit.jpg" style="zoom:30%" /> | <img src="https://im.sdk.qcloud.com/tools/resource/tuicalling/android/GitHubChatDeleteTUICallKit.jpg" style="zoom:30%" />|
+| <img width="300" alt="GitHub_ChatIncludeCallMinimalist" src="https://user-images.githubusercontent.com/85340225/205878435-75c56857-a8c5-4262-b0cf-71a7d773b50c.png">  | <img width="300" alt="GitHub_ChatExcludeCallMinimalist" src="https://user-images.githubusercontent.com/85340225/205878234-ce5c4dd3-e6aa-4352-9c13-dababfd15c48.png"> |
 
 联系人资料界面屏蔽 TUICallKit 前后的效果：
 
-| 修改之前 | 修改之后|
+| 修改前 | 修改后|
 |--------|------|
-| <img src="https://im.sdk.qcloud.com/tools/resource/tuicalling/android/GitHubContactAddTUICallKit.jpg" style="zoom:30%" /> | <img src="https://im.sdk.qcloud.com/tools/resource/tuicalling/android/GitHubContactDeleteTUICallKit.jpg" style="zoom:30%" /> |
+| <img width="300" alt="GitHub_ContactIncludeCallMinimalist" src="https://user-images.githubusercontent.com/85340225/205878892-218cb7a3-977a-4277-bda3-903360600742.png"> | <img width="300" alt="GitHub_ContactExcludeCallMinimalist" src="https://user-images.githubusercontent.com/85340225/205878978-106e0230-5111-485a-8c65-a9662e2dda9d.png"> |
 
 > 以上演示的仅仅是 Demo 对移除音视频通话功能的处理，开发者可以按照业务要求自定义。
 
@@ -98,6 +97,8 @@ api project(':tuisearch')
 
 消息界面屏蔽 TUISearch 前后的效果：
 
-![](https://qcloudimg.tencent-cloud.cn/raw/e099c8fe41f3c908cd88573dad6dc820.png)  ![](https://qcloudimg.tencent-cloud.cn/raw/c501170cbb23923d6bacff893b30fdbb.png)
+| 修改前 | 修改后 |
+|---------|---------|
+| <img width="300" alt="GitHub_ConversationIncludeSearchMinimalist" src="https://user-images.githubusercontent.com/85340225/205879099-1577d68a-a6c2-4413-8ebe-6742f5e4aa7c.png"> | <img width="300" alt="GitHub_ConversationExcludeSearchMinimalist" src="https://user-images.githubusercontent.com/85340225/205879135-0d5753b9-029f-4c68-9dfa-9c587277106c.png"> |
 
 > 以上演示的仅仅是 Demo 对移除搜索功能的处理，开发者可以按照业务要求自定义。
