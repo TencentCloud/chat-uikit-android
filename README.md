@@ -100,6 +100,6 @@ The message UIs before and after TUISearch masking are as follows:
 
 | before | After |
 |---------|---------|
-| <img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/GitHub_ConversationIncludeSearchMinimalist.png" width="300px"/> | <img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/GitHub_ConversationExcludeSearchMinimalist.png" width="300px"/>
+| <img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/GitHub_ConversationIncludeSearchMinimalist.png" width="300px"/> | <img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/GitHub_ConversationExcludeSearchMinimalist.png" width="300px"/> | 
 
 > The above only shows how to remove the search feature from the demo. Developers can customize the demo according to their business requirements.
