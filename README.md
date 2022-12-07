@@ -1,5 +1,23 @@
 English | [简体中文](./README_ZH.md)
 
+# Instant Messaging
+## Product Introduction
+Build real-time social messaging capabilities with all the features into your applications and websites based on powerful and feature-rich chat APIs, SDKs and UIKit components.
+
+<table style="text-align:center; vertical-align:middle; width:200px">
+  <tr>
+    <th style="text-align:center;" width="200px">iOS Experience App</th>
+  </tr>
+  <tr>
+    <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/b1ea5318e1cfce38e4ef6249de7a4106.png"/></td>
+   </tr>
+</table>
+
+TUIKit is a UI component library based on Tencent Cloud IM SDK. It provides universal UI components to offer features such as conversation, chat, search, relationship chain, group, and audio/video call features.
+
+<img src="https://qcloudimg.tencent-cloud.cn/raw/9c893f1a9c6368c82d44586907d5293d.png" style="zoom:50%;"/>
+
+## Run through Demo
 This document introduces how to quickly run through the IM demo on the Android platform.
 For the other platforms, please refer to document：
 
@@ -15,7 +33,7 @@ For the other platforms, please refer to document：
 
 [**chat-uikit-wechat**](https://github.com/TencentCloud/chat-uikit-wechat)
 
-## Step 1. Create an App
+### Step 1. Create an App
 1. Log in to the [IM console](https://intl.cloud.tencent.com/login).
  >If you already have an app, record its SDKAppID and go to **step 2**.
  >
@@ -23,13 +41,13 @@ For the other platforms, please refer to document：
 3. In the **Create Application** dialog box, enter the app information and click **Confirm**.
  After the app is created, an app ID (SDKAppID) will be automatically generated, which should be noted down.
 
-## Step 2: Obtain Key Information
+### Step 2: Obtain Key Information
 
 1. Click **Application Configuration** in the row of the target app to enter the app details page.
 2. Click **View Key** and copy and save the key information.
  > Please store the key information properly to prevent leakage.
 
-## Step 3: Download and Configure the Demo Source Code
+### Step 3: Download and Configure the Demo Source Code
 
 1. Clone the IM demo project from [GitHub](https://github.com/TencentCloud/chat-uikit-android).
 2. Open the project in the terminal directory and find the `GenerateTestUserSig` file in the following paths:
@@ -61,10 +79,10 @@ For the other platforms, please refer to document：
 > In this document, the method to obtain UserSig is to configure a SECRETKEY in the client code. In this method, the SECRETKEY is vulnerable to decompilation and reverse engineering. Once your SECRETKEY is leaked, attackers can steal your Tencent Cloud traffic. Therefore, **this method is only suitable for locally running a demo project and feature debugging**.
 >The correct `UserSig` distribution method is to integrate the calculation code of `UserSig` into your server and provide an application-oriented API. When `UserSig` is needed, your app can send a request to the business server for a dynamic `UserSig`. For more information, please see [How do I calculate UserSig on the server?](https://cloud.tencent.com/document/product/269/32688#GeneratingdynamicUserSig).
 
-## Step 4: Compile and Run the Demo (All Features)
+### Step 4: Compile and Run the Demo (All Features)
 Import the demo project with Android Studio, and then compile and run it.
 
-## Step 5: Compile and Run the Demo (Removing the Audio/Video Call Feature)
+### Step 5: Compile and Run the Demo (Removing the Audio/Video Call Feature)
 If you do not need the audio/video call feature, you only delete the audio/video call integration code as shown in the figure below from the `build.gradle` file under the `app` module:
 
 ![](https://qcloudimg.tencent-cloud.cn/raw/4ad9df5f0b3d1068427a51937613da92.jpg)
@@ -87,7 +105,7 @@ The contact profile UIs before and after TUICallKit masking are as follows:
 
 > The above only shows how to remove the audio/video call feature from the demo. Developers can customize the demo according to their business requirements.
 
-## Step 6: Compile and Run the Demo (Removing the Search Module)
+### Step 6: Compile and Run the Demo (Removing the Search Module)
 If you do not need the search feature, you only delete the line of code as shown in the figure below from the `build.gradle` file under the `app` module:
 
 ![](https://qcloudimg.tencent-cloud.cn/raw/7e2685017b93e418dadd1599bcb0a3b6.jpg)
