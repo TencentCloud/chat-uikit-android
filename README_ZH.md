@@ -4,12 +4,12 @@
 ## 产品简介
 即时通信 IM（Instant Messaging）基于 QQ 底层 IM 能力开发，仅需植入 IM SDK 即可轻松集成聊天、会话、群组、资料管理和直播弹幕能力，也支持通过信令消息与白板等其他产品打通，全面覆盖您的业务场景，支持各大平台小程序接入使用，全面满足通信需要。
 
-<table style="text-align:center; vertical-align:middle; width:200px">
+<table style="text-align:center; vertical-align:middle; width:220px">
   <tr>
-    <th style="text-align:center;" width="200px">Android 体验 App</th>
+    <th style="text-align:center;" width="220px">Android 体验 App</th>
   </tr>
   <tr>
-    <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
+    <td><img style="width:220px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
 </table>
 
 我们提供了一套基于 IM SDK 的 TUIKit 组件库，组件库包含了会话、聊天、搜索、关系链、群组、音视频通话等功能。基于 UI 组件您可以像搭积木一样快速搭建起自己的业务逻辑。
