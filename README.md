@@ -6,10 +6,10 @@ Build real-time social messaging capabilities with all the features into your ap
 
 <table style="text-align:center; vertical-align:middle; width:200px">
   <tr>
-    <th style="text-align:center;" width="200px">iOS Experience App</th>
+    <th style="text-align:center;" width="200px">Android Experience App</th>
   </tr>
   <tr>
-    <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/b1ea5318e1cfce38e4ef6249de7a4106.png"/></td>
+    <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
    </tr>
 </table>
 
