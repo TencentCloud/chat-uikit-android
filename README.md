@@ -4,12 +4,12 @@ English | [简体中文](./README_ZH.md)
 ## Product Introduction
 Build real-time social messaging capabilities with all the features into your applications and websites based on powerful and feature-rich chat APIs, SDKs and UIKit components.
 
-<table style="text-align:center; vertical-align:middle; width:200px">
+<table style="text-align:center; vertical-align:middle; width:220px">
   <tr>
-    <th style="text-align:center;" width="200px">Android Experience App</th>
+    <th style="text-align:center;" width="220px">Android Experience App</th>
   </tr>
   <tr>
-    <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
+    <td><img style="width:220px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
    </tr>
 </table>
 
