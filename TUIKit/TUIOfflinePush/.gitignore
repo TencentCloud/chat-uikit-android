@@ -1,0 +1,19 @@
+# OS X Files
+.DS_Store
+**/.DS_Store
+
+
+# Gradle files
+*/.gradle/
+*.gradle/
+
+
+# IDEA Files
+/tuiofflinepush/.idea/
+/tuiofflinepush/build/
+local.properties
+/.codecc/
+/build.yml
+*.iml
+*.idea/
+/captures

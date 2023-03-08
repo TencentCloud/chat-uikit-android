@@ -1,0 +1,20 @@
+# OS X Files
+.DS_Store
+**/.DS_Store
+
+
+# Gradle files
+*/.gradle/
+*.gradle/
+# IDEA Files
+/tuicalling/.idea/
+/tuicalling/build/
+local.properties
+/.codecc/
+/build.yml
+*.iml
+*.idea/
+build/
+/captures
+.externalNativeBuild
+.cxx
