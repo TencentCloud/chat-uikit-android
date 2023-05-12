@@ -50,6 +50,11 @@ public class InitSetting {
         initDemoStyle();
     }
 
+    private void initDemoStyle() {
+        final SharedPreferences sharedPreferences = mContext.getSharedPreferences("TUIKIT_DEMO_SETTINGS", mContext.MODE_PRIVATE);
+        AppConfig.DEMO_UI_STYLE = sharedPreferences.getInt("tuikit_demo_style", 1);
+    }
+
     private void setPermissionRequestContent() {
         ApplicationInfo applicationInfo = TUIChatService.getAppContext().getApplicationInfo();
         Resources resources = TUIChatService.getAppContext().getResources();
@@ -127,11 +132,6 @@ public class InitSetting {
                 // 3 intent
                 break;
         }
-    }
-
-    private void initDemoStyle() {
-        final SharedPreferences sharedPreferences = mContext.getSharedPreferences("TUIKIT_DEMO_SETTINGS", mContext.MODE_PRIVATE);
-        AppConfig.DEMO_UI_STYLE = sharedPreferences.getInt("tuikit_demo_style", 1);
     }
 
     public void initBeforeLogin(int imsdkAppId) {
