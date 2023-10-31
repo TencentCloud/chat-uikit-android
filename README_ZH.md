@@ -16,6 +16,8 @@
 
 <img src="https://qcloudimg.tencent-cloud.cn/raw/9c893f1a9c6368c82d44586907d5293d.png" style="zoom:50%;"/>
 
+更多信息可查阅 [Tencent Cloud Chat](https://www.tencentcloud.com/document/product/1047).
+
 ## 跑通 Demo
 本文介绍如何快速跑通 Android 平台即时通信 IM 的体验 Demo。 对于其他平台，请参考文档：
 
