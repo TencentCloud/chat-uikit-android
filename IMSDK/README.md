@@ -5,21 +5,19 @@ English | [简体中文](./README_ZH.md)
 ## Download Links
 
 ### Enhanced Edition(Recommend)
-[Latest Enhanced Edition IM SDK download](https://im.sdk.qcloud.com/download/plus/7.6.5011/imsdk-plus-7.6.5011.aar) 
-
-### Enhanced Edition Pro (Providing axp-quic multiplex transmission protocol to enhance network performance)
-[Latest Enhanced Edition Pro IM SDK download](https://im.sdk.qcloud.com/download/plus/7.6.5011/imsdk-plus-pro-7.6.5011.aar) 
-
-### Basic Edition
-[Latest Basic Edition IM SDK download](https://im.sdk.qcloud.com/download/standard/5.1.66/imsdk-5.1.66.aar)
-
-### [Differences Between the Basic Edition and the Enhanced Edition](https://github.com/tencentyun/TIMSDK#%E5%9F%BA%E7%A1%80%E7%89%88%E4%B8%8E%E5%A2%9E%E5%BC%BA%E7%89%88%E5%B7%AE%E5%BC%82%E5%AF%B9%E6%AF%94)
+[Latest Enhanced Edition IM SDK download](https://im.sdk.qcloud.com/download/plus/7.7.5282/imsdk-plus-7.7.5282.aar) 
 
 ### C API edition
-[Latest C API download](https://im.sdk.qcloud.com/download/plus/7.6.5011/cross_platform/ImSDK_Android_C_7.6.5011.zip)
+[Latest C API download](https://im.sdk.qcloud.com/download/plus/7.7.5282/cross_platform/ImSDK_Android_C_7.7.5282.zip)
 
 ### C++ API edition
-[Latest C++ API download](https://im.sdk.qcloud.com/download/plus/7.6.5011/cross_platform/ImSDK_Android_CPP_7.6.5011.zip)
+[Latest C++ API download](https://im.sdk.qcloud.com/download/plus/7.7.5282/cross_platform/ImSDK_Android_CPP_7.7.5282.zip)
+
+### Quic Plugin for IM SDK (Providing axp-quic multiplex transmission protocol to enhance network performance)
+[Latest Quic Plugin download](https://im.sdk.qcloud.com/download/plus/7.7.5282/timquic-plugin-7.7.5282.aar) 
+
+### Advanced Encryption Plugin for IM SDK (Providing database encryption and SM4 encryption algorithm)
+[Latest Advanced Encryption Plugin download](https://im.sdk.qcloud.com/download/plus/7.7.5282/timadvancedencryption-plugin-7.7.5282.aar)
 
 #### Maven integration (Android)
  If you use the Enhanced Edition SDK, add the following dependencies to the `gradle` file:
@@ -28,16 +26,17 @@ English | [简体中文](./README_ZH.md)
    api 'com.tencent.imsdk:imsdk-plus:Version number'
  }
  ```
- 
-  If you use the Enhanced Edition Pro SDK, add the following dependencies to the `gradle` file:
+
+ If you use the Quic Plugin, add the following dependencies to the `gradle` file:
  ```
  dependencies {
-   api 'com.tencent.imsdk:imsdk-plus-pro:Version number'
+   api 'com.tencent.imsdk:timquic-plugin:Version number'
  }
  ```
- If you use the Basic Edition SDK, add the following dependencies to the `gradle` file:
+
+ If you use the Advanced Encryption Plugin, add the following dependencies to the `gradle` file:
  ```
  dependencies {
-   api 'com.tencent.imsdk:imsdk:Version number'
+   api 'com.tencent.imsdk:timadvancedencryption-plugin:Version number'
  }
  ```
