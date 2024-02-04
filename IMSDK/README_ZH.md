@@ -1,7 +1,7 @@
 [English](./README.md) | 简体中文
 
-# TIM SDK 7.8.5484（Android）
 
+# TIM SDK 7.8.5484（Android）
 ## 下载 IM SDK
 
 <table >
@@ -15,6 +15,7 @@
      <td style="text-align:center">Java 版本</td>
      <td style="text-align:center">支持 Java API</td>
      <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/7.8.5484/imsdk-plus-7.8.5484.aar">imsdk-plus.aar</a></td>
+
   </tr>
 </table>
 
@@ -31,6 +32,7 @@
      <td style="text-align:center">Quic 插件</td>
      <td style="text-align:center">提供 axp-quic 多路传输协议，弱网抗性更优</td>
      <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/7.8.5484/timquic-plugin-7.8.5484.aar">timquic-plugin.aar</a></td>
+
   </tr>
 </table>
 
