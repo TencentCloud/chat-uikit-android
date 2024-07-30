@@ -3,9 +3,6 @@ package com.tencent.qcloud.tim.demo.signature;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.tencent.qcloud.tim.demo.DemoApplication;
-import com.tencent.qcloud.tim.demo.utils.Constants;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,7 +16,7 @@ import java.util.zip.Deflater;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-/*
+/**
  * Module: GenerateTestUserSig
  *
  * Function: Used to generate UserSig for testing. UserSig is a security signature designed by Tencent Cloud for its cloud services.
