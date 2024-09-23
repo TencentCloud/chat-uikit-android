@@ -1,8 +1,8 @@
 [English](./README.md) | 简体中文
 
-# 即时通信 IM
+# Chat
 ## 产品简介
-即时通信 IM（Instant Messaging）基于 QQ 底层 IM 能力开发，仅需植入 IM SDK 即可轻松集成聊天、会话、群组、资料管理和直播弹幕能力，也支持通过信令消息与白板等其他产品打通，全面覆盖您的业务场景，支持各大平台小程序接入使用，全面满足通信需要。
+您只需集成 Chat SDK 即可轻松获得聊天、会话、群组、资料管理和直播弹幕能力，也可以通过信令消息与白板等其他产品打通。Chat 可以覆盖您的各种业务场景，支持各平台接入使用，全面满足通信需要。
 
 <table style="text-align:center; vertical-align:middle; width:200px">
   <tr>
@@ -12,14 +12,14 @@
     <td><img style="width:200px" src="https://qcloudimg.tencent-cloud.cn/raw/078fbb462abd2253e4732487cad8a66d.png"/></td>
 </table>
 
-我们提供了一套基于 IM SDK 的 TUIKit 组件库，组件库包含了会话、聊天、搜索、关系链、群组、音视频通话等功能。基于 UI 组件您可以像搭积木一样快速搭建起自己的业务逻辑。
+我们提供了一套基于 Chat SDK 的 TUIKit 组件库，组件库包含了会话、聊天、搜索、关系链、群组、音视频通话等功能。基于 UI 组件您可以像搭积木一样快速搭建起自己的业务逻辑。
 
 <img src="https://qcloudimg.tencent-cloud.cn/raw/9c893f1a9c6368c82d44586907d5293d.png" width="800"/>
 
 更多信息可查阅 [Chat 界面库介绍](https://trtc.io/document/50062?platform=android&product=chat&menulabel=uikit).
 
 ## 跑通 Demo
-本文介绍如何快速跑通 Android 平台即时通信 IM 的体验 Demo。 对于其他平台，请参考文档：
+本文介绍如何快速跑通 Android 平台体验 Demo。 对于其他平台，请参考文档：
 
 - [**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)
 
@@ -33,12 +33,12 @@
 
 - [**chat-uikit-wechat**](https://github.com/TencentCloud/chat-uikit-wechat)
 
-请注意：为尊重表情设计版权，IM Demo/TUIKit 工程中不包含大表情元素切图，正式上线商用前请您替换为自己设计或拥有版权的其他表情包。下图所示默认的小黄脸表情包版权归腾讯云所有，可有偿授权使用，如需获得授权可 [联系我们](https://trtc.io/contact) 。
+请注意：为尊重表情设计版权，Chat Demo/TUIKit 工程中不包含大表情元素切图，正式上线商用前请您替换为自己设计或拥有版权的其他表情包。下图所示默认的小黄脸表情包版权归腾讯云所有，可有偿授权使用，如需获得授权可 [联系我们](https://trtc.io/contact) 。
 
 <img src="https://qcloudimg.tencent-cloud.cn/image/document/6438e8feb7bba909511e0d798dfaf91d.png" width="300px" />
 
 ### 步骤1：创建应用
-1. 登录即时通信 IM [控制台](https://console.trtc.io/)。如果您已有应用，请记录其 SDKAppID 并转到 **步骤2**。
+1. 登录即时通信 Chat [控制台](https://console.trtc.io/)。如果您已有应用，请记录其 SDKAppID 并转到 **步骤2**。
 2. 在【应用列表】页，单击【创建应用接入】。
 3. 在【创建新应用】对话框中，填写新建应用的信息，单击【确认】。
  应用创建完成后，自动生成一个应用标识 SDKAppID，请记录 SDKAppID 信息。
