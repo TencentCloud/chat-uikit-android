@@ -79,7 +79,7 @@ In respect for the copyright of the emoji design, the Chat Demo/TUIKit project d
  - SDKAPPID: set it to the SDKAppID obtained in **step 1**.
  - SECRETKEY: enter the actual key information obtained in **step 2**.
 
-<img width="1576" alt="7db2b7abfe1018f0b2612d4c49f95ab3" src="https://user-images.githubusercontent.com/85340225/205882619-01f54454-2db1-42ab-80a7-a5cab98149ab.png">
+<img src="https://cloudcache.intl.tencent-cloud.com/cms/backend-cms/e0d841971cd711ef9b9e5254002977b6.png" width="800"/>
 
 
 > In this document, the method to obtain UserSig is to configure a SECRETKEY in the client code. In this method, the SECRETKEY is vulnerable to decompilation and reverse engineering. Once your SECRETKEY is leaked, attackers can steal your Tencent Cloud traffic. Therefore, **this method is only suitable for locally running a demo project and feature debugging**.
