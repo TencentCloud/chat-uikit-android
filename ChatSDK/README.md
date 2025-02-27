@@ -1,12 +1,12 @@
 English | [简体中文](./README_ZH.md)
 
-# TIM SDK 8.4.6667 (Android)
+# Chat SDK 8.4.6667 (Android)
 
-## Download IM SDK
+## Download Chat SDK
 
 <table >
   <tr>
-    <th width="240px" style="text-align:center">IM SDK Type</th>
+    <th width="240px" style="text-align:center">Chat SDK Type</th>
     <th width="440px" style="text-align:center">Introduction</th>
     <th width="320px" style="text-align:center">Download Links</th>
   </tr>
@@ -18,11 +18,11 @@ English | [简体中文](./README_ZH.md)
   </tr>
 </table>
 
-## Download Plugin for IM SDK
+## Download Plugin for Chat SDK
 
 <table >
   <tr>
-    <th width="240px" style="text-align:center">IM SDK Plugin Type</th>
+    <th width="240px" style="text-align:center">Chat SDK Plugin Type</th>
     <th width="440px" style="text-align:center">Introduction</th>
     <th width="320px" style="text-align:center">Download Links</th>
   </tr>
@@ -38,10 +38,10 @@ English | [简体中文](./README_ZH.md)
 Add the dependency to your module's build.gradle file.
 ```
 dependencies {
-    // Add the IM SDK and use the latest version number as recommended
+    // Add the Chat SDK and use the latest version number as recommended
     api 'com.tencent.imsdk:imsdk-plus:Version number'
 
-    // If you need to add the Quic plugin, please uncomment the next line (Note: the plugin version number must match the IM SDK version number)
+    // If you need to add the Quic plugin, please uncomment the next line (Note: the plugin version number must match the Chat SDK version number)
     // api "com.tencent.imsdk:timquic-plugin:Version number"
 }
 ```
