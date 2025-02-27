@@ -1,12 +1,12 @@
 [English](./README.md) | 简体中文
 
-# TIM SDK 8.4.6667（Android）
+# Chat SDK 8.4.6667（Android）
 
-## 下载 IM SDK
+## 下载 Chat SDK
 
 <table >
   <tr>
-    <th width="220px" style="text-align:center">IM SDK 类型</th>
+    <th width="220px" style="text-align:center">Chat SDK 类型</th>
     <th width="440px" style="text-align:center">简介</th>
     <th width="340px" style="text-align:center">下载地址</th>
   </tr>
@@ -18,11 +18,11 @@
   </tr>
 </table>
 
-## 下载 IM SDK 的插件
+## 下载 Chat SDK 的插件
 
 <table >
   <tr>
-    <th width="220px" style="text-align:center">IM SDK 插件类型</th>
+    <th width="220px" style="text-align:center">Chat SDK 插件类型</th>
     <th width="440px" style="text-align:center">简介</th>
     <th width="340px" style="text-align:center">下载地址</th>
   </tr>
@@ -39,10 +39,10 @@
 在您的 module build.gradle 文件中添加依赖项。
 ```
 dependencies {
-    // 添加 IM SDK，推荐填写最新的版本号
+    // 添加 Chat SDK，推荐填写最新的版本号
     api 'com.tencent.imsdk:imsdk-plus:版本号'
 
-    // 如果您需要添加 Quic 插件，请取消下一行的注释（注意：要求插件版本号和 IM SDK 版本号相同）
+    // 如果您需要添加 Quic 插件，请取消下一行的注释（注意：要求插件版本号和 Chat SDK 版本号相同）
     // api "com.tencent.imsdk:timquic-plugin:版本号"
 }
 ```
