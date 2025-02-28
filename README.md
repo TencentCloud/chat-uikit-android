@@ -21,6 +21,8 @@ Explore more docs about [TUIKit Library Overview](https://trtc.io/document/50062
 
 ## Run through Demo
 This document introduces how to quickly run through the Chat demo on the Android platform.
+[<img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/build_ios_chat_app.png" width="800"/>](https://www.youtube.com/watch?v=7UI7a9e8lek)
+
 For the other platforms, please refer to document：
 
 - [**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)

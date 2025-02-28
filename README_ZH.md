@@ -19,7 +19,10 @@
 更多信息可查阅 [Chat 界面库介绍](https://trtc.io/zh/document/50062?platform=android&product=chat&menulabel=uikit)。
 
 ## 跑通 Demo
-本文介绍如何快速跑通 Android 平台体验 Demo。 对于其他平台，请参考文档：
+本文介绍如何快速跑通 Android 平台体验 Demo。
+[<img src="https://im.sdk.qcloud.com/tools/resource/GitHubResource/build_ios_chat_app.png" width="800"/>](https://www.youtube.com/watch?v=7UI7a9e8lek)
+
+对于其他平台，请参考文档：
 
 - [**chat-uikit-ios**](https://github.com/TencentCloud/chat-uikit-ios)
 
