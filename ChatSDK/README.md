@@ -46,6 +46,6 @@ dependencies {
 }
 ```
 
-If you need more detailed integration guidance, please [refer to the complete integration documentation](https://www.tencentcloud.com/document/product/1047/34306).
+If you need more detailed integration guidance, please [refer to the complete integration documentation](https://trtc.io/document/34306).
 
 In addition, we also provide SDKs for the C and C++ API, which you can download from here，[Download C API Edition](https://im.sdk.qcloud.com/download/plus/8.4.6667/cross_platform/ImSDK_Android_C_8.4.6667.zip)、[Download  C++ API Edition](https://im.sdk.qcloud.com/download/plus/8.4.6667/cross_platform/ImSDK_Android_CPP_8.4.6667.zip)。
