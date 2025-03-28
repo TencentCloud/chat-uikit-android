@@ -1,6 +1,6 @@
 English | [简体中文](./README_ZH.md)
 
-# Chat SDK 8.4.6667 (Android)
+# Chat SDK 8.5.6864 (Android)
 
 ## Download Chat SDK
 
@@ -14,7 +14,7 @@ English | [简体中文](./README_ZH.md)
   <tr >
      <td style="text-align:center">Java Edition</td>
      <td style="text-align:center">Support Java API</td>
-     <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/8.4.6667/imsdk-plus-8.4.6667.aar">imsdk-plus.aar</a></td>
+     <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/8.5.6864/imsdk-plus-8.5.6864.aar">imsdk-plus.aar</a></td>
   </tr>
 </table>
 
@@ -30,7 +30,7 @@ English | [简体中文](./README_ZH.md)
   <tr >
      <td style="text-align:center">Quic Plugin</td>
      <td style="text-align:center">Providing axp-quic multiplex transmission protocol to enhance network performance</td>
-     <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/8.4.6667/timquic-plugin-8.4.6667.aar">timquic-plugin.aar</a></td>
+     <td style="text-align:center"><a href="https://im.sdk.qcloud.com/download/plus/8.5.6864/timquic-plugin-8.5.6864.aar">timquic-plugin.aar</a></td>
   </tr>
 </table>
 
