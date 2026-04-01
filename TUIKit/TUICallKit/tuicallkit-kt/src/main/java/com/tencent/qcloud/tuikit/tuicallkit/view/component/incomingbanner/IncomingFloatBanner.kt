@@ -13,22 +13,28 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.qcloud.tuicore.util.ScreenUtil
 import com.tencent.qcloud.tuicore.util.TUIBuild
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Constants
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
-import com.tencent.qcloud.tuikit.tuicallkit.common.utils.KeyMetrics
+import com.tencent.qcloud.tuikit.tuicallkit.common.metrics.KeyMetrics
 import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
-import com.tencent.qcloud.tuikit.tuicallkit.state.UserState
 import com.tencent.qcloud.tuikit.tuicallkit.state.ViewState
 import com.tencent.qcloud.tuikit.tuicallkit.view.CallMainActivity
 import com.trtc.tuikit.common.imageloader.ImageLoader
 import com.trtc.tuikit.common.livedata.Observer
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantInfo
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
     private var appContext: Context = context.applicationContext
+    private val scope = MainScope()
     private val windowManager: WindowManager = appContext.getSystemService(WINDOW_SERVICE) as WindowManager
 
     private lateinit var layoutView: View
@@ -38,14 +44,9 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
     private lateinit var imageReject: ImageView
     private lateinit var imageAccept: ImageView
     private val padding = 40
+    private var callStatus = CallParticipantStatus.None
 
-    private lateinit var caller: UserState.User
-
-    private var callStatusObserver = Observer<TUICallDefine.Status> {
-        if (it == TUICallDefine.Status.None || it == TUICallDefine.Status.Accept) {
-            cancelIncomingView()
-        }
-    }
+    private lateinit var caller: CallParticipantInfo
 
     private val viewRouterObserver = Observer<ViewState.ViewRouter> {
         if (it == ViewState.ViewRouter.FullView || it == ViewState.ViewRouter.FloatView) {
@@ -54,7 +55,7 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
         }
     }
 
-    fun showIncomingView(user: UserState.User) {
+    fun showIncomingView(user: CallParticipantInfo) {
         Logger.i(TAG, "showIncomingView")
         caller = user
         initView()
@@ -70,12 +71,22 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
     }
 
     private fun registerObserver() {
-        CallManager.instance.userState.selfUser.get().callStatus.observe(callStatusObserver)
+        scope.launch {
+            CallStore.shared.observerState.selfInfo.collect { selfInfo ->
+                if (callStatus == selfInfo.status) {
+                    return@collect
+                }
+                callStatus = selfInfo.status
+                if (selfInfo.status == CallParticipantStatus.None || selfInfo.status == CallParticipantStatus.Accept) {
+                    cancelIncomingView()
+                }
+            }
+        }
         CallManager.instance.viewState.router.observe(viewRouterObserver)
     }
 
     private fun unregisterObserver() {
-        CallManager.instance.userState.selfUser.get().callStatus.removeObserver(callStatusObserver)
+        scope.cancel()
         CallManager.instance.viewState.router.removeObserver(viewRouterObserver)
     }
 
@@ -87,15 +98,15 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
         imageReject = layoutView.findViewById(R.id.btn_float_decline)
         imageAccept = layoutView.findViewById(R.id.btn_float_accept)
 
-        ImageLoader.load(appContext, imageFloatAvatar, caller.avatar?.get(), R.drawable.tuicallkit_ic_avatar)
-        textFloatTitle.text = caller.nickname.get()
+        ImageLoader.load(appContext, imageFloatAvatar, caller.avatarUrl, R.drawable.tuicallkit_ic_avatar)
+        textFloatTitle.text = caller.name
 
-        val mediaType = CallManager.instance.callState.mediaType.get()
+        val mediaType = CallStore.shared.observerState.activeCall.value.mediaType
         textFloatDescription.text =
-            if (mediaType == TUICallDefine.MediaType.Video) {
-                appContext.resources.getString(R.string.tuicallkit_invite_video_call)
+            if (mediaType == CallMediaType.Video) {
+                appContext.resources.getString(R.string.callkit_invite_video_call)
             } else {
-                appContext.resources.getString(R.string.tuicallkit_invite_audio_call)
+                appContext.resources.getString(R.string.callkit_invite_audio_call)
             }
 
         imageReject.setOnClickListener {
@@ -111,17 +122,19 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
         }
 
         when (mediaType) {
-            TUICallDefine.MediaType.Video -> imageAccept.setBackgroundResource(R.drawable.tuicallkit_ic_dialing_video)
+            CallMediaType.Video -> imageAccept.setBackgroundResource(R.drawable.tuicallkit_ic_dialing_video)
             else -> imageAccept.setBackgroundResource(R.drawable.tuicallkit_bg_dialing)
         }
+        val callStatus = CallStore.shared.observerState.selfInfo.value.status
         imageAccept.setOnClickListener {
-            if (CallManager.instance.userState.selfUser.get().callStatus.get() == TUICallDefine.Status.None) {
+            if (callStatus == CallParticipantStatus.None) {
                 Logger.w(TAG, "current status is None, ignore")
                 cancelIncomingView()
                 return@setOnClickListener
             }
 
             Logger.i(TAG, "accept the call")
+            CallStore.shared.accept(null)
             val intent = Intent(context, CallMainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             intent.action = Constants.ACCEPT_CALL_ACTION
@@ -131,7 +144,8 @@ class IncomingFloatBanner(context: Context) : RelativeLayout(context) {
 
         CallManager.instance.viewState.router.set(ViewState.ViewRouter.Banner)
         windowManager.addView(layoutView, viewParams)
-        KeyMetrics.countUV(KeyMetrics.EventId.WAKEUP, CallManager.instance.callState.callId)
+        val callId = CallStore.shared.observerState.activeCall.value.callId
+        KeyMetrics.countUV(KeyMetrics.EventId.WAKEUP, callId)
     }
 
     private val viewParams: WindowManager.LayoutParams

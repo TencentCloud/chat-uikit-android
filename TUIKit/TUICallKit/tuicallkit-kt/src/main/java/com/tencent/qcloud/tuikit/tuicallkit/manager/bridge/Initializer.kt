@@ -4,18 +4,13 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.qcloud.tuicore.ServiceInitializer
 import com.tencent.qcloud.tuicore.TUIConstants
 import com.tencent.qcloud.tuicore.TUICore
 import com.tencent.qcloud.tuicore.TUILogin
-import com.tencent.qcloud.tuicore.permission.PermissionRequester
 import com.tencent.qcloud.tuikit.tuicallkit.TUICallKitImpl
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Constants
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
-import com.tencent.qcloud.tuikit.tuicallkit.state.GlobalState
 import com.tencent.qcloud.tuikit.tuicallkit.view.CallMainActivity
-import com.trtc.tuikit.common.ui.floatwindow.FloatWindowManager
 
 /**
  * `TUICallKit` uses `ContentProvider` to be registered with `TUICore`.
@@ -28,7 +23,7 @@ class Initializer : ServiceInitializer() {
 
         val audioRecordService = TUIAudioMessageRecordService(context)
         TUICore.registerService(TUIConstants.TUICalling.SERVICE_NAME_AUDIO_RECORD, audioRecordService)
-
+        TUICallKitImpl.createInstance(context)
         if (context is Application) {
             context.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
                 private var foregroundActivities = 0
@@ -58,9 +53,6 @@ class Initializer : ServiceInitializer() {
                     }
                     foregroundActivities--
                     isChangingConfiguration = activity.isChangingConfigurations
-                    if (foregroundActivities == 0 && !isChangingConfiguration) {
-                        checkToShowFloatWindow()
-                    }
                 }
 
                 override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
@@ -77,18 +69,5 @@ class Initializer : ServiceInitializer() {
             e.printStackTrace()
         }
         return false
-    }
-
-    private fun checkToShowFloatWindow() {
-        if (TUICallDefine.Status.None == CallManager.instance.userState.selfUser.get().callStatus.get()) {
-            return
-        }
-        if (!PermissionRequester.newInstance(PermissionRequester.FLOAT_PERMISSION).has()) {
-            return
-        }
-        if (FloatWindowManager.sharedInstance().isPictureInPictureSupported && GlobalState.instance.enablePipMode) {
-            return
-        }
-        TUICore.notifyEvent(Constants.KEY_TUI_CALLKIT, Constants.SUB_KEY_SHOW_FLOAT_WINDOW, null)
     }
 }

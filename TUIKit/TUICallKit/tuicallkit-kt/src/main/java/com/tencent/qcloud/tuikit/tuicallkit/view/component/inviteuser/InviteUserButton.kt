@@ -6,11 +6,10 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.tencent.qcloud.tuicore.TUICore
-import com.tencent.qcloud.tuicore.TUILogin
 import com.tencent.qcloud.tuicore.util.ToastUtil
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
 
 @SuppressLint("AppCompatCustomView")
 class InviteUserButton(context: Context) : ImageView(context) {
@@ -35,19 +34,15 @@ class InviteUserButton(context: Context) : ImageView(context) {
 
     private fun inviteUser() {
         // TODO: 3.0 上这里不止是groupId
-        val groupId = CallManager.instance.callState.chatGroupId
+        val groupId = CallStore.shared.observerState.activeCall.value.chatGroupId
         if (groupId.isNullOrEmpty()) {
-            ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_group_id_is_empty))
+            ToastUtil.toastShortMessage(context.getString(R.string.callkit_group_id_is_empty))
             return
         }
-        val list = ArrayList<String?>()
-        for (model in CallManager.instance.userState.remoteUserList.get()) {
-            if (!model.id.isNullOrEmpty() && !list.contains(model.id)) {
-                list.add(model.id)
-            }
-        }
-        if (!list.contains(TUILogin.getLoginUser())) {
-            list.add(TUILogin.getLoginUser())
+        val list = ArrayList<String>()
+        val allParticipants = CallStore.shared.observerState.allParticipants.value
+        for (participant in allParticipants) {
+            list.add(participant.id)
         }
         Logger.i(TAG, "InviteUserButton clicked, groupId: $groupId ,list: $list")
         val bundle = Bundle()

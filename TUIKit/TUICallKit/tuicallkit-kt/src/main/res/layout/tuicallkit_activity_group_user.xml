@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tuicallkit_color_white">
+    android:background="@color/callkit_color_white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_group_user_title"
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:singleLine="true"
-                android:text="@string/tuicallkit_group_title_add_user"
+                android:text="@string/callkit_group_title_add_user"
                 android:textColor="?attr/core_header_text_color"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|center_vertical"
                 android:background="@android:color/transparent"
-                android:text="@string/tuicallkit_group_btn_ok"
+                android:text="@string/callkit_group_btn_ok"
                 android:textAllCaps="false"
                 android:textColor="#0365F9"
                 android:textSize="16sp" />

@@ -1,5 +1,6 @@
 package com.tencent.qcloud.tuikit.tuicallkit.view.component.joiningroupcall
 
+import android.content.Context
 import android.view.View
 import com.google.gson.Gson
 import com.tencent.cloud.tuikit.engine.call.TUICallDefine
@@ -9,18 +10,15 @@ import com.tencent.imsdk.v2.V2TIMManager
 import com.tencent.imsdk.v2.V2TIMValueCallback
 import com.tencent.qcloud.tuicore.TUILogin
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
-import com.trtc.tuikit.common.livedata.Observer
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class JoinCallViewManager() {
+class JoinCallViewManager(private val context: Context) {
+    private val scope = MainScope()
     private var callView: JoinCallView? = null
     private var currentGroupId: String? = null
-
-    private var callStatusObserver = Observer<TUICallDefine.Status> {
-        if (it == TUICallDefine.Status.None) {
-            currentGroupId?.let { it1 -> getGroupAttributes(it1) }
-        }
-    }
 
     private val groupListener: V2TIMGroupListener = object : V2TIMGroupListener() {
         override fun onGroupAttributeChanged(groupID: String?, groupAttributeMap: MutableMap<String?, String>?) {
@@ -35,7 +33,13 @@ class JoinCallViewManager() {
 
     init {
         V2TIMManager.getInstance().addGroupListener(groupListener)
-        CallManager.instance.userState.selfUser.get().callStatus.observe(callStatusObserver)
+        scope.launch {
+            CallStore.shared.observerState.selfInfo.collect { selfInfo ->
+                if (selfInfo.status == CallParticipantStatus.None) {
+                    currentGroupId?.let { it1 -> getGroupAttributes(it1) }
+                }
+            }
+        }
     }
 
     fun setJoinCallView(joinCallView: JoinCallView) {
@@ -61,7 +65,8 @@ class JoinCallViewManager() {
     }
 
     private fun parseGroupAttributes(groupId: String, map: Map<String?, String?>?) {
-        if (CallManager.instance.userState.selfUser.get().callStatus.get() != TUICallDefine.Status.None) {
+        val callStatus = CallStore.shared.observerState.selfInfo.value.status
+        if (callStatus != CallParticipantStatus.None) {
             removeCallView()
             Logger.w(TAG, "parseGroupAttributes, user is in the call, ignore")
             return

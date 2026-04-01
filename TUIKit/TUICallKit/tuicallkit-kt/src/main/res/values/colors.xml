@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="tuicallkit_color_white">#FFFFFFFF</color>
-    <color name="tuicallkit_color_black">#FF000000</color>
-    <color name="tuicallkit_color_gray">#696969</color>
-    <color name="tuicallkit_color_transparent">#00000000</color>
-    <color name="tuicallkit_color_blur_mask">#8022262E</color>
-    <color name="tuicallkit_record_text_red">#FF584C</color>
-    <color name="tuicallkit_button_bg_red">#E6594C</color>
-    <color name="tuicallkit_record_text_green">#12B969</color>
-    <color name="tuicallkit_color_bg_float_view">#FFBBBBBB</color>
-    <color name="tuicallkit_color_blue">#066fff</color>
+    <color name="callkit_color_white">#FFFFFFFF</color>
+    <color name="callkit_color_black">#FF000000</color>
+    <color name="callkit_color_gray">#696969</color>
+    <color name="callkit_color_transparent">#00000000</color>
+    <color name="callkit_color_blur_mask">#8022262E</color>
+    <color name="callkit_record_text_red">#FF584C</color>
+    <color name="callkit_button_bg_red">#E6594C</color>
+    <color name="callkit_record_text_green">#12B969</color>
+    <color name="callkit_color_bg_float_view">#FFBBBBBB</color>
 </resources>

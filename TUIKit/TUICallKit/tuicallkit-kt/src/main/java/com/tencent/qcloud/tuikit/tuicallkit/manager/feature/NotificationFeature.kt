@@ -16,11 +16,11 @@ class NotificationFeature(ctx: Context) {
     fun registerNotificationBannerChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channelGroupName = context.getString(R.string.tuicallkit_notification_channel_group_id)
+            val channelGroupName = context.getString(R.string.callkit_notification_channel_group_id)
             val channelGroup = NotificationChannelGroup(channelGroupId, channelGroupName)
             nm.createNotificationChannelGroup(channelGroup)
 
-            val channelName = context.getString(R.string.tuicallkit_notification_channel_id)
+            val channelName = context.getString(R.string.callkit_notification_channel_id)
             val channel = NotificationChannel(CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH)
             channel.group = channelGroupId
             channel.enableLights(true)

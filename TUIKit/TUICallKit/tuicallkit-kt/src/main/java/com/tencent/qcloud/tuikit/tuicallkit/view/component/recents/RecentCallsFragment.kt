@@ -12,20 +12,20 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.CallRecords
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.RecentCallsFilter
 import com.tencent.qcloud.tuicore.TUIConstants
 import com.tencent.qcloud.tuicore.TUIConstants.TUICalling.ObjectFactory.RecentCalls
 import com.tencent.qcloud.tuicore.TUICore
 import com.tencent.qcloud.tuicore.TUILogin
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.TUICallKit
-import com.tencent.qcloud.tuikit.tuicallkit.state.GlobalState
 import com.tencent.qcloud.tuikit.tuicallkit.view.component.recents.interfaces.ICallRecordItemListener
 import com.trtc.tuikit.common.livedata.LiveListObserver
 import com.trtc.tuikit.common.ui.PopupDialog
 import com.trtc.tuikit.common.util.ToastUtil
+import io.trtc.tuikit.atomicxcore.api.call.CallDirection
+import io.trtc.tuikit.atomicxcore.api.call.CallInfo
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
 
 class RecentCallsFragment(style: String) : Fragment() {
     private lateinit var buttonEdit: Button
@@ -43,15 +43,15 @@ class RecentCallsFragment(style: String) : Fragment() {
 
     constructor() : this(style = RecentCalls.UI_STYLE_CLASSIC)
 
-    private val callHistoryObserver = object : LiveListObserver<CallRecords>() {
-        override fun onDataChanged(list: List<CallRecords>) {
+    private val callHistoryObserver = object : LiveListObserver<CallInfo>() {
+        override fun onDataChanged(list: List<CallInfo>) {
             if (listAdapter != null && TYPE_ALL == type) {
                 listAdapter.onDataSourceChanged(list)
             }
         }
     }
-    private val callMissObserver = object : LiveListObserver<CallRecords>() {
-        override fun onDataChanged(list: List<CallRecords>) {
+    private val callMissObserver = object : LiveListObserver<CallInfo>() {
+        override fun onDataChanged(list: List<CallInfo>) {
             if (listAdapter != null && TYPE_MISS == type) {
                 listAdapter.onDataSourceChanged(list)
             }
@@ -95,7 +95,7 @@ class RecentCallsFragment(style: String) : Fragment() {
         val layoutTab: TabLayout = rootView.findViewById(R.id.tab_layout)
         val layoutTitle: ConstraintLayout = rootView.findViewById(R.id.cl_record_title)
         if (RecentCalls.UI_STYLE_MINIMALIST == chatViewStyle) {
-            layoutTitle.setBackgroundColor(ContextCompat.getColor(context!!, R.color.tuicallkit_color_white))
+            layoutTitle.setBackgroundColor(ContextCompat.getColor(context!!, R.color.callkit_color_white))
         }
 
         buttonEdit.setOnClickListener {
@@ -131,15 +131,15 @@ class RecentCallsFragment(style: String) : Fragment() {
         recyclerRecent.layoutManager = LinearLayoutManager(context)
         recyclerRecent.adapter = listAdapter
         setAdapterListener()
-        recentCallsManager = RecentCallsManager(requireContext())
+        recentCallsManager = RecentCallsManager()
         recentCallsManager.queryRecentCalls(filter)
     }
 
-    private val filter: RecentCallsFilter
+    private val filter: CallInfo
         private get() {
-            val filter = RecentCallsFilter()
+            val filter = CallInfo()
             if (TYPE_MISS == type) {
-                filter.result = CallRecords.Result.Missed
+                filter.result = CallDirection.Missed
             }
             return filter
         }
@@ -164,65 +164,63 @@ class RecentCallsFragment(style: String) : Fragment() {
 
     private fun setAdapterListener() {
         listAdapter.setOnCallRecordItemListener(object : ICallRecordItemListener {
-            override fun onItemClick(view: View?, viewType: Int, callRecords: CallRecords?) {
-                if (callRecords == null) {
+            override fun onItemClick(view: View?, viewType: Int, callInfo: CallInfo?) {
+                if (callInfo == null) {
                     return
                 }
                 if (listAdapter.isMultiSelectMode) {
                     return
                 }
-                if (!callRecords.groupId.isNullOrEmpty()) {
-                    startGroupInfoActivity(callRecords)
-                    ToastUtil.toastLongMessage(getString(R.string.tuicallkit_group_recall_unsupport))
+                if (callInfo.chatGroupId.isNotEmpty()) {
+                    startGroupInfoActivity(callInfo)
+                    ToastUtil.toastLongMessage(getString(R.string.callkit_group_recall_unsupport))
                     return
                 }
-                if (GlobalState.instance.enableForceUseV2API) {
-                    var user = callRecords.inviter
-                    if (TUICallDefine.Role.Caller == callRecords.role) {
-                        user = callRecords.inviteList[0]
-                    }
-                    TUICallKit.createInstance(context!!).call(user, callRecords.mediaType)
-                } else {
-                    val userList = ArrayList<String>()
-                    userList.add(callRecords.inviter)
-                    userList.addAll(callRecords.inviteList)
-                    userList.remove(TUILogin.getLoginUser())
-
-                    TUICallKit.createInstance(context!!).calls(userList, callRecords.mediaType, null, null)
+                var mediaType = CallMediaType.Audio
+                if (callInfo.mediaType == CallMediaType.Video) {
+                    mediaType = CallMediaType.Video
                 }
+
+                val userList = ArrayList<String>()
+                userList.add(callInfo.inviterId)
+                userList.addAll(callInfo.inviteeIds)
+                userList.remove(TUILogin.getLoginUser())
+                TUICallKit.createInstance(context!!).calls(userList, mediaType, null, null)
+
             }
 
-            override fun onItemDeleteClick(view: View?, viewType: Int, callRecords: CallRecords?) {
-                if (callRecords == null) {
+            override fun onItemDeleteClick(view: View?, viewType: Int, callInfo: CallInfo?) {
+                if (callInfo == null) {
                     return
                 }
-                val list: MutableList<CallRecords> = ArrayList()
-                list.add(callRecords)
+                val list: MutableList<CallInfo> = ArrayList()
+                list.add(callInfo)
                 deleteRecordCalls(list)
             }
 
-            override fun onDetailViewClick(view: View?, records: CallRecords?) {
-                if (records == null) {
+            override fun onDetailViewClick(view: View?, callInfo: CallInfo?) {
+                if (callInfo == null) {
                     return
                 }
-                if (!records.groupId.isNullOrEmpty()) {
-                    startGroupInfoActivity(records)
+                if (!callInfo.chatGroupId.isNullOrEmpty()) {
+                    startGroupInfoActivity(callInfo)
                     return
                 }
 
-                if (records.inviteList.size <= 1) {
-                    startFriendProfileActivity(records)
+                if (callInfo.inviteeIds.size <= 1) {
+                    startFriendProfileActivity(callInfo)
                 }
             }
         })
     }
 
-    private fun startFriendProfileActivity(records: CallRecords) {
+    private fun startFriendProfileActivity(callInfo: CallInfo) {
         val bundle = Bundle()
-        if (TUICallDefine.Role.Caller == records.role) {
-            bundle.putString(TUIConstants.TUIChat.CHAT_ID, records.inviteList[0])
+        val selfId = CallStore.shared.observerState.selfInfo.value.id
+        if (callInfo.inviterId == selfId) {
+            bundle.putString(TUIConstants.TUIChat.CHAT_ID, callInfo.inviteeIds.first())
         } else {
-            bundle.putString(TUIConstants.TUIChat.CHAT_ID, records.inviter)
+            bundle.putString(TUIConstants.TUIChat.CHAT_ID, callInfo.inviterId)
         }
         var activityName = "FriendProfileActivity"
         if (RecentCalls.UI_STYLE_MINIMALIST == chatViewStyle) {
@@ -231,9 +229,9 @@ class RecentCallsFragment(style: String) : Fragment() {
         TUICore.startActivity(activityName, bundle)
     }
 
-    private fun startGroupInfoActivity(records: CallRecords) {
+    private fun startGroupInfoActivity(callInfo: CallInfo) {
         val bundle = Bundle()
-        bundle.putString("group_id", records.groupId)
+        bundle.putString("group_id", callInfo.chatGroupId)
         var activityName = "GroupInfoActivity"
         if (RecentCalls.UI_STYLE_MINIMALIST == chatViewStyle) {
             activityName = "GroupInfoMinimalistActivity"
@@ -265,19 +263,19 @@ class RecentCallsFragment(style: String) : Fragment() {
         recyclerRecent.closeMenu()
     }
 
-    private fun deleteRecordCalls(selectItem: List<CallRecords>) {
+    private fun deleteRecordCalls(selectItem: List<CallInfo>) {
         recentCallsManager.deleteRecordCalls(selectItem)
         needCloseMultiMode = !listAdapter.isMultiSelectMode
         stopMultiSelect()
     }
 
     private fun clearRecentCalls() {
-        val selectedItems: List<CallRecords?>?
+        val selectedItems: List<CallInfo?>?
         selectedItems = listAdapter.selectedItem
         if (selectedItems == null) {
             return
         }
-        val recordList: MutableList<CallRecords> = ArrayList()
+        val recordList: MutableList<CallInfo> = ArrayList()
         for (records in selectedItems) {
             if (records != null && !TextUtils.isEmpty(records.callId)) {
                 recordList.add(records)
@@ -305,6 +303,7 @@ class RecentCallsFragment(style: String) : Fragment() {
     }
 
     companion object {
+        private const val TAG = "RecentCallsFragment"
         private const val TYPE_ALL = "AllCall"
         private const val TYPE_MISS = "MissedCall"
     }

@@ -12,8 +12,8 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/tuicallkit_dialog_sure"
         android:gravity="center"
-        android:text="@string/tuicallkit_record_dialog_message"
-        android:textColor="@color/tuicallkit_record_text_red"
+        android:text="@string/callkit_record_dialog_message"
+        android:textColor="@color/callkit_record_text_red"
         android:textSize="17sp"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +27,7 @@
         android:layout_marginBottom="21dp"
         android:background="@drawable/tuicallkit_dialog_cancel"
         android:gravity="center"
-        android:text="@string/tuicallkit_record_dialog_cancel"
+        android:text="@string/callkit_record_dialog_cancel"
         android:textColor="#007AFF"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
