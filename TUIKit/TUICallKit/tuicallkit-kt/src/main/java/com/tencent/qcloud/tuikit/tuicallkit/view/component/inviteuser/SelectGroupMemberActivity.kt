@@ -1,11 +1,11 @@
 package com.tencent.qcloud.tuikit.tuicallkit.view.component.inviteuser
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.imsdk.v2.V2TIMGroupMemberFullInfo
 import com.tencent.imsdk.v2.V2TIMGroupMemberInfoResult
 import com.tencent.imsdk.v2.V2TIMManager
@@ -13,20 +13,19 @@ import com.tencent.imsdk.v2.V2TIMValueCallback
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
 import com.trtc.tuikit.common.FullScreenActivity
-import com.trtc.tuikit.common.livedata.Observer
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class SelectGroupMemberActivity : FullScreenActivity() {
     private lateinit var recyclerUserList: RecyclerView
     private lateinit var adapter: SelectGroupMemberAdapter
     private var groupId: String? = null
+    private val scope = MainScope()
     private val groupMemberList: MutableList<GroupMemberInfo> = ArrayList()
     private var alreadySelectList: List<String?> = ArrayList()
-
-    private var callStatusObserver = Observer<TUICallDefine.Status> {
-        if (it == TUICallDefine.Status.None) {
-            finish()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +33,12 @@ class SelectGroupMemberActivity : FullScreenActivity() {
         initView()
         initData()
         registerObserver()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        initData()
     }
 
     private fun initView() {
@@ -93,15 +98,17 @@ class SelectGroupMemberActivity : FullScreenActivity() {
     }
 
     private fun registerObserver() {
-        CallManager.instance.userState.selfUser.get().callStatus.observe(callStatusObserver)
-    }
-
-    private fun unregisterObserver() {
-        CallManager.instance.userState.selfUser.get().callStatus.removeObserver(callStatusObserver)
+        scope.launch {
+            CallStore.shared.observerState.selfInfo.collect { selfInfo ->
+                if (selfInfo.status == CallParticipantStatus.None) {
+                    finish()
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterObserver()
+        scope.cancel()
     }
 }

@@ -9,15 +9,15 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.MediaType
+import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.cloud.tuikit.engine.common.TUICommonDefine
 import com.tencent.cloud.tuikit.engine.common.TUICommonDefine.ValueCallback
 import com.tencent.qcloud.tuicore.util.ScreenUtil
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.TUICallKit
 import com.tencent.qcloud.tuikit.tuicallkit.manager.UserManager
-import com.tencent.qcloud.tuikit.tuicallkit.state.UserState
 import com.trtc.tuikit.common.imageloader.ImageLoader
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantInfo
 
 class JoinCallView(context: Context) : FrameLayout(context) {
     private lateinit var layoutExpand: ConstraintLayout
@@ -46,17 +46,17 @@ class JoinCallView(context: Context) : FrameLayout(context) {
     }
 
     fun updateView(
-        mediaType: MediaType, userList: List<String>?,
+        mediaType: TUICallDefine.MediaType, userList: List<String>?,
         callId: String = "", groupId: String? = "", roomId: TUICommonDefine.RoomId? = null,
     ) {
-        btnJoinCall.text = context.resources.getString(R.string.tuicallkit_join_group_call)
+        btnJoinCall.text = context.resources.getString(R.string.callkit_join_group_call)
 
         if (userList.isNullOrEmpty()) {
             return
         }
         updateUserAvatarView(userList)
 
-        textUserHint.text = context.resources.getString(R.string.tuicallkit_join_group_call_users, userList.size)
+        textUserHint.text = context.resources.getString(R.string.callkit_join_group_call_users, userList.size)
 
         btnJoinCall.setOnClickListener {
             if (!callId.isNullOrEmpty()) {
@@ -72,8 +72,8 @@ class JoinCallView(context: Context) : FrameLayout(context) {
     }
 
     private fun updateUserAvatarView(list: List<String>) {
-        UserManager.instance.updateUserListInfo(list, object : ValueCallback<List<UserState.User>?> {
-            override fun onSuccess(data: List<UserState.User>?) {
+        UserManager.instance.updateUserListInfo(list, object : ValueCallback<List<CallParticipantInfo>?> {
+            override fun onSuccess(data: List<CallParticipantInfo>?) {
                 data?.let { setAvatar(it) }
             }
 
@@ -97,8 +97,8 @@ class JoinCallView(context: Context) : FrameLayout(context) {
             imageView.round = 12f
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
             imageView.layoutParams = layoutParams
-            if (user is UserState.User) {
-                ImageLoader.load(context, imageView, user.avatar.get(), R.drawable.tuicallkit_ic_avatar)
+            if (user is CallParticipantInfo) {
+                ImageLoader.load(context, imageView, user.avatarUrl, R.drawable.tuicallkit_ic_avatar)
             } else {
                 ImageLoader.load(context, imageView, R.drawable.tuicallkit_ic_avatar, R.drawable.tuicallkit_ic_avatar)
             }

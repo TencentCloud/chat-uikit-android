@@ -1,87 +1,52 @@
 <resources>
-    <string name="tuicallkit_toast_enable_mute">マイクオフ</string>
-    <string name="tuicallkit_toast_disable_mute">マイクオン</string>
-    <string name="tuicallkit_toast_speaker">スピーカーオン</string>
-    <string name="tuicallkit_toast_use_earpiece">スピーカーオフ</string>
-    <string name="tuicallkit_toast_callee_hangup">相手が切断、通話終了</string>
-    <string name="tuicallkit_toast_callee_reject">相手による通話拒否</string>
-    <string name="tuicallkit_toast_callee_no_response">呼び出しタイムアウト</string>
-    <string name="tuicallkit_toast_call_busy">電話が話し中ですので、後ほどもう一度お試しください</string>
-    <string name="tuicallkit_other_party_network_low_quality">相手のネットワーク接続が不安定です</string>
-    <string name="tuicallkit_self_network_low_quality">ネットワーク接続が不安定です</string>
-    <string name="tuicallkit_toast_switch_camera">カメラの切り替え</string>
-    <string name="tuicallkit_toast_enable_camera">カメラオン</string>
-    <string name="tuicallkit_toast_disable_camera">カメラオフ</string>
-    <string name="tuicallkit_waiting_accept">応答を待っています</string>
-    <string name="tuicallkit_invite_audio_call">音声通話に招待されました</string>
-    <string name="tuicallkit_invite_video_call">ビデオ通話に招待されました</string>
-    <string name="tuicallkit_text_hangup">マイク</string>
-    <string name="tuicallkit_text_line_busy">回線ビジー</string>
-    <string name="tuicallkit_text_dialing">応答</string>
-    <string name="tuicallkit_btn_cancel">キャンセル</string>
-    <string name="tuicallkit_video_call">ビデオ通話</string>
-    <string name="tuicallkit_audio_call">音声通話</string>
-    <string name="tuicallkit_user_exceed_limit">暫して、最大9人までの通话をサポートしています。複数人の会議を希望する場合、TUIRoomKitを使用してください。</string>
-    <string name="tuicallkit_wait_response">応答を待っています...</string>
-    <string name="tuicallkit_wait_accept_group">グループ通話に招待します</string>
-    <string name="tuicallkit_accept_single">接続済み</string>
-    <string name="tuicallkit_invitee_user_list">通話に参加している他の人もいます</string>
+    <string name="callkit_enter_pip_mode_fail_hint">ピクチャーインピクチャーモードへの移行に失敗しました。権限が有効になっているか確認してください。</string>
+    <string name="callkit_invite_audio_call">音声通話に招待されました</string>
+    <string name="callkit_invite_video_call">ビデオ通話に招待されました</string>
+    <string name="callkit_group_id_is_empty">グループIDが空です</string>
+    <string name="callkit_group_title_add_user">メンバーを招待</string>
+    <string name="callkit_record_call_title">通話履歴</string>
+    <string name="callkit_record_call_delete">削除</string>
+    <string name="callkit_record_dialog_message">すべての履歴を消去</string>
+    <string name="callkit_record_dialog_cancel">キャンセル</string>
+    <string name="callkit_record_tab_title_all">すべて</string>
+    <string name="callkit_record_tab_title_miss">不在着信</string>
+    <string name="callkit_record_done">完了</string>
+    <string name="callkit_record_clear">削除</string>
+    <string name="callkit_group_recall_unsupport">グループ通話記録はリコールをサポートしません</string>
+    <string name="callkit_record_result_unknown">不明</string>
+    <string name="callkit_record_result_missed">不在着信</string>
+    <string name="callkit_record_result_incoming">着信</string>
+    <string name="callkit_record_result_outgoing">発信</string>
+    <string name="callkit_permission_camera">カメラ</string>
+    <string name="callkit_permission_microphone">マイク</string>
+    <string name="callkit_permission_bluetooth">Bluetooth</string>
+    <string name="callkit_permission_separator">、</string>
+    <string name="callkit_permission_tips">最初に%sの権限を有効にする必要があります</string>
+    <string name="callkit_permission_title">%sは%s権限を取得するよう申請します</string>
+    <string name="callkit_permission_camera_reason">カメラへのアクセス許可が必要で、ビデオ通話、グループビデオ通話などの機能に使用できます。美顔機能を使用する場合は、カメラで撮影された映像から顔の特徴点情報をリアルタイムで収集し、より自然な美しさを提供します。</string>
+    <string name="callkit_permission_mic_reason">マイクへのアクセス許可が必要で、音声/ビデオ通話、グループ音声/ビデオ通話などの機能に使用できます。マイクをオンにした場合のみ、録画した動画に音声が保存されます。</string>
+    <string name="callkit_permission_bluetooth_reason">音声/ビデオ通話中にBluetooth接続が正常に行われるには、付近のBluetoothデバイスの検出や接続を許可する必要があります。</string>
+    <string name="callkit_package_not_purchased">TUICallKit パッケージを購入していません。コンソールで無料トライアル版をアクティブ化するか、正式版を購入してください。</string>
+    <string name="callkit_package_not_support">購入したTUICallKitパッケージはこの機能をサポートしていません。パッケージタイプをアップグレードすることをお勧めします。</string>
+    <string name="callkit_have_a_new_call">新しい通話があります</string>
+    <string name="callkit_error_in_peer_blacklist">ユーザーはブラックリストに登録され、通話が開始できませんでした。</string>
+    <string name="callkit_error_invalid_login">ログイン失敗しました。もう一度ログインしてください</string>
+    <string name="callkit_error_parameter_invalid">パラメータエラー</string>
+    <string name="callkit_error_request_refused">現在の状態では、この機能の呼び出しはサポートされていません</string>
+    <string name="callkit_error_request_repeated">現在実行中のメソッドを呼び出すことはできません</string>
+    <string name="callkit_error_scene_not_support">現在の通話シーンでは、この機能はサポートしていません</string>
+    <string name="callkit_join_group_call">参加</string>
+    <string name="callkit_join_group_call_users">%d人が通話中です</string>
+    <string name="callkit_notification_channel_group_id">つうわかんり</string>
+    <string name="callkit_notification_channel_id">おんせい・えいぞうつうわ</string>
 
-    <string name="tuicallkit_permission_camera">カメラ</string>
-    <string name="tuicallkit_permission_microphone">マイク</string>
-    <string name="tuicallkit_permission_bluetooth">Bluetooth</string>
-    <string name="tuicallkit_permission_separator">、</string>
-    <string name="tuicallkit_permission_tips">最初に%sの権限を有効にする必要があります</string>
-    <string name="tuicallkit_permission_title">%sは%s権限を取得するよう申請します</string>
-    <string name="tuicallkit_permission_camera_reason">カメラへのアクセス許可が必要で、ビデオ通話、グループビデオ通話などの機能に使用できます。美顔機能を使用する場合は、カメラで撮影された映像から顔の特徴点情報をリアルタイムで収集し、より自然な美しさを提供します。</string>
-    <string name="tuicallkit_permission_mic_reason">マイクへのアクセス許可が必要で、音声/ビデオ通話、グループ音声/ビデオ通話などの機能に使用できます。マイクをオンにした場合のみ、録画した動画に音声が保存されます。</string>
-    <string name="tuicallkit_permission_bluetooth_reason">音声/ビデオ通話中にBluetooth接続が正常に行われるには、付近のBluetoothデバイスの検出や接続を許可する必要があります。</string>
-
-    <string name="tuicallkit_package_not_purchased">TUICallKit パッケージを購入していません。コンソールで無料トライアル版をアクティブ化するか、正式版を購入してください。</string>
-    <string name="tuicallkit_package_not_support">購入したTUICallKitパッケージはこの機能をサポートしていません。パッケージタイプをアップグレードすることをお勧めします。</string>
-    <string name="tuicallkit_group_id_is_empty">グループIDが空です</string>
-    <string name="tuicallkit_have_a_new_call">新しい通話があります</string>
-
-    <string name="tuicallkit_record_call_title">通話履歴</string>
-    <string name="tuicallkit_record_call_delete">削除</string>
-    <string name="tuicallkit_record_dialog_message">すべての履歴を消去</string>
-    <string name="tuicallkit_record_dialog_cancel">キャンセル</string>
-    <string name="tuicallkit_record_tab_title_all">すべて</string>
-    <string name="tuicallkit_record_tab_title_miss">不在着信</string>
-    <string name="tuicallkit_record_done">完了</string>
-    <string name="tuicallkit_record_clear">削除</string>
-    <string name="tuicallkit_group_recall_unsupport">グループ通話記録はリコールをサポートしません</string>
-    <string name="tuicallkit_record_result_unknown">不明</string>
-    <string name="tuicallkit_record_result_missed">不在着信</string>
-    <string name="tuicallkit_record_result_incoming">着信</string>
-    <string name="tuicallkit_record_result_outgoing">発信</string>
-
-    <string name="tuicallkit_group_title_add_user">メンバーを招待</string>
-    <string name="tuicallkit_group_hint_you">(自分)</string>
-    <string name="tuicallkit_group_btn_ok">OK</string>
-
-    <string name="tuicallkit_error_in_peer_blacklist">ユーザーはブラックリストに登録され、通話が開始できませんでした。</string>
-    <string name="tuicallkit_error_invalid_login">ログイン失敗しました。もう一度ログインしてください</string>
-    <string name="tuicallkit_error_parameter_invalid">パラメータエラー</string>
-    <string name="tuicallkit_error_request_refused">現在の状態では、この機能の呼び出しはサポートされていません</string>
-    <string name="tuicallkit_error_request_repeated">現在実行中のメソッドを呼び出すことはできません</string>
-    <string name="tuicallkit_error_scene_not_support">現在の通話シーンでは、この機能はサポートしていません</string>
-    <string name="tuicallkit_join_group_call">参加</string>
-    <string name="tuicallkit_join_group_call_users">%d人が通話中です</string>
-
-    <string name="tuicallkit_blur_background">背景をぼかす</string>
-    <string name="tuicallkit_notification_channel_group_id">つうわかんり</string>
-    <string name="tuicallkit_notification_channel_id">おんせい・えいぞうつうわ</string>
-
-    <string name="tuicallkit_audio_route_bluetooth_headset">ブルートゥースイヤホン</string>
-    <string name="tuicallkit_audio_route_wired_headset">有線イヤホン</string>
-    <string name="tuicallkit_audio_route_unknown_device">未知のデバイス</string>
-
-    <string name="tuicallkit_speaker_on">スピーカーがオンになっています</string>
-    <string name="tuicallkit_speaker_off">スピーカーがオフになっています</string>
-
-    <string name="tuicallkit_enter_pip_mode_fail_hint">ピクチャーインピクチャーモードへの移行に失敗しました。権限が有効になっているか確認してください。</string>
-    <string name="tuicallkit_go_to_settings">有効にする</string>
-    <string name="tuicallkit_notification_reminder">着信通知を時間通りに確実に受信するために、メッセージ通知をオンにし、バナー通知 と ロック画面通知 も同時に有効にしてください</string>
-
+    <string name="callkit_video_call">ビデオ通話</string>
+    <string name="callkit_audio_call">音声通話</string>
+    <string name="callkit_user_exceed_limit">暫して、最大9人までの通话をサポートしています。複数人の会議を希望する場合、TUIRoomKitを使用してください。</string>
+    <string name="callkit_toast_other_party_hung_up">相手が電話を切りました</string>
+    <string name="callkit_toast_other_party_declined">相手が通話リクエストを拒否しました</string>
+    <string name="callkit_toast_other_party_no_response">相手が応答しませんでした</string>
+    <string name="callkit_toast_other_party_busy">相手は通話中です</string>
+    <string name="callkit_toast_other_party_cancelled">相手が通話をキャンセルしました</string>
+    <string name="callkit_toast_you_have_missed_calls">不在着信があります</string>
 </resources>

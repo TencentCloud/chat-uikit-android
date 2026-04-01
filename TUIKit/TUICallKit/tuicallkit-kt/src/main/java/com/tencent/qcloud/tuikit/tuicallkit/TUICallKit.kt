@@ -2,11 +2,12 @@ package com.tencent.qcloud.tuikit.tuicallkit
 
 import android.content.Context
 import com.tencent.cloud.tuikit.engine.call.TUICallDefine
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.CallParams
-import com.tencent.cloud.tuikit.engine.common.TUICommonDefine
 import com.tencent.cloud.tuikit.engine.common.TUICommonDefine.RoomId
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Constants
 import com.tencent.qcloud.tuikit.tuicallkit.view.CallAdapter
+import io.trtc.tuikit.atomicxcore.api.CompletionHandler
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
+import io.trtc.tuikit.atomicxcore.api.call.CallParams
 
 abstract class TUICallKit {
     companion object {
@@ -22,7 +23,7 @@ abstract class TUICallKit {
      * For example: https://liteav.sdk.qcloud.com/app/res/picture/voiceroom/avatar/user_avatar1.png
      * @param callback Set the result callback
      */
-    open fun setSelfInfo(nickname: String?, avatar: String?, callback: TUICommonDefine.Callback?) {}
+    open fun setSelfInfo(nickname: String?, avatar: String?, completion: CompletionHandler?) {}
 
     /**
      * Make a 1VN calls
@@ -32,8 +33,8 @@ abstract class TUICallKit {
      * @param params        Extension param: eg: offlinePushInfo
      */
     open fun calls(
-        userIdList: List<String?>?, mediaType: TUICallDefine.MediaType,
-        params: TUICallDefine.CallParams?, callback: TUICommonDefine.Callback?
+        userIdList: List<String>, mediaType: CallMediaType,
+        params: CallParams?, completion: CompletionHandler?
     ) {
     }
 
@@ -42,7 +43,7 @@ abstract class TUICallKit {
      *
      * @param callId call Id
      */
-    open fun join(callId: String?, callback: TUICommonDefine.Callback?) {}
+    open fun join(callId: String?, completion: CompletionHandler?) {}
 
 
     /**
@@ -66,6 +67,8 @@ abstract class TUICallKit {
      * Enable Virtual Background
      */
     open fun enableVirtualBackground(enable: Boolean) {}
+
+    open fun enableAITranscriber(enable: Boolean) {}
 
     /**
      * Enable callee show banner view when received an new invitation
@@ -98,57 +101,6 @@ abstract class TUICallKit {
      * @param jsonStr
      */
     open fun callExperimentalAPI(jsonStr: String) {}
-
-    /**
-     * Make a call
-     *
-     * @param userId        callees
-     * @param callMediaType Call type
-     */
-    @Deprecated("Use NewInterface instead", ReplaceWith("calls"))
-    open fun call(userId: String, callMediaType: TUICallDefine.MediaType) {
-    }
-
-    /**
-     * Make a call
-     *
-     * @param userId        callees
-     * @param callMediaType Call type
-     * @param params        Extension param: eg: offlinePushInfo
-     */
-    @Deprecated("Use NewInterface instead", ReplaceWith("calls"))
-    open fun call(
-        userId: String, callMediaType: TUICallDefine.MediaType,
-        params: CallParams?, callback: TUICommonDefine.Callback?
-    ) {
-    }
-
-    /**
-     * Make a group call
-     *
-     * @param groupId       GroupId
-     * @param userIdList    List of userId
-     * @param callMediaType Call type
-     */
-    @Deprecated("Use NewInterface instead", ReplaceWith("calls"))
-    open fun groupCall(groupId: String, userIdList: List<String?>?, callMediaType: TUICallDefine.MediaType) {
-    }
-
-    /**
-     * Make a group call
-     *
-     * @param groupId       GroupId
-     * @param userIdList    List of userId
-     * @param callMediaType Call type
-     * @param params        Extension param: eg: offlinePushInfo
-     */
-    @Deprecated("Use NewInterface instead", ReplaceWith("calls"))
-    open fun groupCall(
-        groupId: String, userIdList: List<String?>?,
-        callMediaType: TUICallDefine.MediaType, params: CallParams?,
-        callback: TUICommonDefine.Callback?
-    ) {
-    }
 
     /**
      * Join a current call

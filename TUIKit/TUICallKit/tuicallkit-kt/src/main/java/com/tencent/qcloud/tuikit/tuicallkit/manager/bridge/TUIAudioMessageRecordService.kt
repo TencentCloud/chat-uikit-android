@@ -19,10 +19,12 @@ import com.tencent.qcloud.tuicore.permission.PermissionCallback
 import com.tencent.qcloud.tuicore.util.TUIBuild
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
 import com.tencent.qcloud.tuikit.tuicallkit.common.utils.PermissionRequest
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
 import com.tencent.trtc.TRTCCloud
 import com.tencent.trtc.TRTCCloudDef
 import com.tencent.trtc.TRTCCloudListener
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -53,7 +55,8 @@ class TUIAudioMessageRecordService(context: Context) : ITUIService, ITUINotifica
                 return false
             }
 
-            if (TUICallDefine.Status.None != CallManager.instance.userState.selfUser.get().callStatus.get()) {
+            val callStatus = CallStore.shared.observerState.selfInfo.value.status
+            if (CallParticipantStatus.None != callStatus) {
                 Logger.e(TAG, "startRecordAudioMessage failed, The current call status does not support recording")
                 notifyAudioMessageRecordEvent(
                     TUIConstants.TUICalling.EVENT_SUB_KEY_RECORD_START,
@@ -71,7 +74,7 @@ class TUIAudioMessageRecordService(context: Context) : ITUIService, ITUINotifica
                 return false
             }
 
-            PermissionRequest.requestPermissions(context, TUICallDefine.MediaType.Audio, object : PermissionCallback() {
+            PermissionRequest.requestPermissions(context, CallMediaType.Audio, object : PermissionCallback() {
                 override fun onGranted() {
                     initAudioFocusManager()
                     if (requestAudioFocus() != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {

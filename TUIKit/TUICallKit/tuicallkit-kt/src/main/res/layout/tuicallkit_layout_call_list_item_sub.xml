@@ -39,7 +39,7 @@
             android:maxWidth="180dp"
             android:singleLine="true"
             android:text="userId"
-            android:textColor="@color/tuicallkit_color_black"
+            android:textColor="@color/callkit_color_black"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"

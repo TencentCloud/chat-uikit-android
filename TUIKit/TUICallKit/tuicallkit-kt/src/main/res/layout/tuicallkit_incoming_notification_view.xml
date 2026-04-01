@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/tuicallkit_color_transparent"
+    android:background="@color/callkit_color_transparent"
     android:orientation="horizontal">
 
     <ImageView

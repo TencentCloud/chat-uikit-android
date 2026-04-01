@@ -2,195 +2,146 @@ package com.tencent.qcloud.tuikit.tuicallkit
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import com.tencent.cloud.tuikit.engine.call.TUICallDefine
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.CallParams
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.Role
-import com.tencent.cloud.tuikit.engine.call.TUICallEngine
-import com.tencent.cloud.tuikit.engine.call.TUICallObserver
 import com.tencent.cloud.tuikit.engine.common.TUICommonDefine
 import com.tencent.cloud.tuikit.engine.common.TUICommonDefine.Callback
-import com.tencent.cloud.tuikit.engine.common.TUICommonDefine.RoomId
 import com.tencent.qcloud.tuicore.TUIConstants
 import com.tencent.qcloud.tuicore.TUICore
-import com.tencent.qcloud.tuicore.TUILogin
-import com.tencent.qcloud.tuicore.interfaces.ITUINotification
 import com.tencent.qcloud.tuicore.permission.PermissionCallback
 import com.tencent.qcloud.tuicore.permission.PermissionRequester
-import com.tencent.qcloud.tuicore.util.TUIBuild
-import com.tencent.qcloud.tuicore.util.ToastUtil
-import com.tencent.qcloud.tuikit.tuicallkit.common.config.OfflinePushInfoConfig
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Constants
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
+import com.tencent.qcloud.tuikit.tuicallkit.common.metrics.KeyMetrics
 import com.tencent.qcloud.tuikit.tuicallkit.common.utils.DeviceUtils
 import com.tencent.qcloud.tuikit.tuicallkit.common.utils.PermissionRequest
 import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
 import com.tencent.qcloud.tuikit.tuicallkit.manager.PushManager
 import com.tencent.qcloud.tuikit.tuicallkit.manager.UserManager
 import com.tencent.qcloud.tuikit.tuicallkit.state.GlobalState
-import com.tencent.qcloud.tuikit.tuicallkit.state.UserState
-import com.tencent.qcloud.tuikit.tuicallkit.state.ViewState
+import com.tencent.qcloud.tuikit.tuicallkit.state.ViewState.ViewRouter
 import com.tencent.qcloud.tuikit.tuicallkit.view.CallAdapter
 import com.tencent.qcloud.tuikit.tuicallkit.view.CallMainActivity
-import com.tencent.qcloud.tuikit.tuicallkit.view.component.floatwindow.FloatWindowView
 import com.tencent.qcloud.tuikit.tuicallkit.view.component.incomingbanner.IncomingFloatBanner
 import com.tencent.qcloud.tuikit.tuicallkit.view.component.incomingbanner.IncomingNotificationBanner
-import com.trtc.tuikit.common.livedata.Observer
 import com.trtc.tuikit.common.ui.floatwindow.FloatWindowManager
-import com.trtc.tuikit.common.ui.floatwindow.FloatWindowObserver
-import java.util.Collections
-
+import com.trtc.tuikit.common.util.ToastUtil
+import io.trtc.tuikit.atomicx.widget.basicwidget.toast.AtomicToast
+import io.trtc.tuikit.atomicxcore.api.CompletionHandler
+import io.trtc.tuikit.atomicxcore.api.call.CallEndReason
+import io.trtc.tuikit.atomicxcore.api.call.CallListener
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
+import io.trtc.tuikit.atomicxcore.api.call.CallParams
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantInfo
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
+import io.trtc.tuikit.atomicxcore.api.device.DeviceError
+import io.trtc.tuikit.atomicxcore.api.device.DeviceStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
-    private val context = context.applicationContext
-
-    private val callStatusObserver = Observer<TUICallDefine.Status> {
-        notifyInternalEvent()
-
-        if (it != TUICallDefine.Status.Waiting
-            || CallManager.instance.userState.selfUser.get().callRole == TUICallDefine.Role.Caller
-        ) {
-            return@Observer
+    private val context = context.applicationContext ?: context
+    private var subscribeSelfStateJob: Job? = null
+    private val callStatusObserver = object : CallListener() {
+        override fun onCallStarted(callId: String, mediaType: CallMediaType) {
+            if (selfIsCaller() && GlobalState.instance.enableAITranscriber) {
+                CallManager.instance.startRealtimeTranscriber()
+            }
         }
-        handleNewCall()
-    }
+        override fun onCallEnded(callId: String, mediaType: CallMediaType, reason: CallEndReason, userId: String) {
+            val activeCall = CallStore.shared.observerState.activeCall.value
+            var toastText: String? = null
+            val selfInfo = CallStore.shared.observerState.selfInfo.value
+            if (activeCall.inviteeIds.size > 1 || activeCall.chatGroupId.isNotEmpty() || selfInfo.id == userId) {
+                return
+            }
 
-    private val floatWindowObserver = object : FloatWindowObserver() {
-        override fun onFloatWindowClick() {
-            startCallActivity()
-            FloatWindowManager.sharedInstance().dismiss()
-        }
-    }
+            when (reason) {
+                CallEndReason.Hangup -> toastText = context.getString(R.string.callkit_toast_other_party_hung_up)
+                CallEndReason.Reject -> toastText = context.getString(R.string.callkit_toast_other_party_declined)
+                CallEndReason.NoResponse -> toastText = context.getString(R.string.callkit_toast_other_party_no_response)
+                CallEndReason.LineBusy -> toastText = context.getString(R.string.callkit_toast_other_party_busy)
+                CallEndReason.Canceled -> toastText = context.getString(R.string.callkit_toast_other_party_cancelled)
+                else -> {}
+            }
 
-    private val callObserver = object : TUICallObserver() {
-        override fun onUserReject(userId: String?) {
-            if (TUICallDefine.Scene.SINGLE_CALL == CallManager.instance.callState.scene.get()) {
-                ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_toast_callee_reject))
+            if (toastText != null) {
+                ToastUtil.toastLongMessage(toastText)
             }
         }
 
-        override fun onUserLineBusy(userId: String?) {
-            ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_text_line_busy))
-        }
-
-        override fun onUserNoResponse(userId: String?) {
-            if (TUICallDefine.Scene.SINGLE_CALL == CallManager.instance.callState.scene.get()) {
-                ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_toast_callee_no_response))
-            }
-        }
-
-        override fun onUserLeave(userId: String?) {
-            if (TUICallDefine.Scene.SINGLE_CALL == CallManager.instance.callState.scene.get()) {
-                ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_toast_callee_hangup))
-            }
+        override fun onCallReceived(callId: String, mediaType: CallMediaType, userData: String) {
+            KeyMetrics.countUV(KeyMetrics.EventId.RECEIVED, callId)
         }
     }
 
     init {
         registerObserver()
-        registerEvent()
     }
 
-    override fun setSelfInfo(nickname: String?, avatar: String?, callback: Callback?) {
-        CallManager.instance.setSelfInfo(nickname, avatar, callback)
+    override fun setSelfInfo(nickname: String?, avatar: String?, completion: CompletionHandler?) {
+        CallManager.instance.setSelfInfo(nickname, avatar, completion)
     }
 
     override fun calls(
-        userIdList: List<String?>?, mediaType: TUICallDefine.MediaType, params: CallParams?, callback: Callback?
+        userIdList: List<String>, mediaType: CallMediaType, params: CallParams?, completion: CompletionHandler?
     ) {
-        if (CallManager.instance.userState.selfUser.get().callStatus.get() != TUICallDefine.Status.None) {
-            ToastUtil.toastShortMessage(context.getString(R.string.tuicallkit_toast_call_busy))
-            return
-        }
-        val list = userIdList?.toHashSet()?.toMutableList()
-        list?.remove(TUILogin.getLoginUser())
-        list?.removeAll(Collections.singleton(null))
-        if (list.isNullOrEmpty()) {
+        val list = userIdList.toHashSet().toMutableList()
+        if (list.isEmpty()) {
             Logger.e(TAG, "calls failed, userIdList is empty")
-            callback?.onError(TUICallDefine.ERROR_PARAM_INVALID, "calls failed, userIdList is empty")
+            completion?.onFailure(TUICallDefine.ERROR_PARAM_INVALID, "calls failed, userIdList is empty")
             return
         }
         PermissionRequest.requestPermissions(context, mediaType, object : PermissionCallback() {
             override fun onGranted() {
-                val selfUser = CallManager.instance.userState.selfUser.get()
-                selfUser.id = TUILogin.getLoginUser() ?: ""
-                selfUser.avatar.set(TUILogin.getFaceUrl())
-                selfUser.nickname.set(TUILogin.getNickName())
-                selfUser.callRole = TUICallDefine.Role.Caller
-                selfUser.callStatus.set(TUICallDefine.Status.Waiting)
-                val userList = ArrayList<UserState.User>()
-                for (userId in list) {
-                    if (userId.isNullOrEmpty()) {
-                        continue
-                    }
-                    val user = UserState.User()
-                    user.id = userId
-                    UserManager.instance.updateUserInfo(user)
-                    user.callRole = TUICallDefine.Role.Called
-                    user.callStatus.set(TUICallDefine.Status.Waiting)
-                    userList.add(user)
-                }
-                CallManager.instance.userState.remoteUserList.addAll(userList)
-                CallManager.instance.callState.mediaType.set(mediaType)
-                var scene = TUICallDefine.Scene.SINGLE_CALL
-                if (params != null && !params.chatGroupId.isNullOrEmpty()) {
-                    scene = TUICallDefine.Scene.GROUP_CALL
-                } else if (list.size >= 2) {
-                    scene = TUICallDefine.Scene.MULTI_CALL
-                }
-                CallManager.instance.callState.scene.set(scene)
-                initCameraAndAudioDeviceState()
-                CallManager.instance.calls(list, mediaType, createDefaultCallParams(params), object : Callback {
+                CallManager.instance.calls(list, mediaType, params, object : CompletionHandler {
                     override fun onSuccess() {
-                        callback?.onSuccess()
+                        startCallActivity()
+                        completion?.onSuccess()
                     }
 
-                    override fun onError(errCode: Int, errMsg: String?) {
-                        callback?.onError(errCode, errMsg)
+                    override fun onFailure(code: Int, desc: String) {
+                        completion?.onFailure(code, desc)
                         CallManager.instance.reset()
                     }
                 })
-                if (CallManager.instance.userState.selfUser.get().callStatus.get() != TUICallDefine.Status.None) {
-                    startCallActivity()
-                }
             }
 
             override fun onDenied() {
                 Logger.w(TAG, "calls, request Permissions failed")
-                callback?.onError(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
+                completion?.onFailure(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
             }
         })
     }
 
-    override fun join(callId: String?, callback: Callback?) {
-        PermissionRequest.requestPermissions(context, TUICallDefine.MediaType.Audio, object : PermissionCallback() {
+    override fun join(callId: String?, completion: CompletionHandler?) {
+        val selfStatus = CallStore.shared.observerState.selfInfo.value.status
+        if (selfStatus != CallParticipantStatus.None) {
+            completion?.onFailure(TUICallDefine.ERROR_PARAM_INVALID, "you have missed calls")
+            AtomicToast.show(context, context.getString(R.string.callkit_toast_you_have_missed_calls))
+            return
+        }
+        PermissionRequest.requestPermissions(context, CallMediaType.Video, object : PermissionCallback() {
             override fun onGranted() {
                 CallManager.instance.join(callId, object : Callback {
                     override fun onSuccess() {
-                        callback?.onSuccess()
+                        startCallActivity()
+                        completion?.onSuccess()
                     }
 
                     override fun onError(errCode: Int, errMsg: String?) {
-                        callback?.onError(errCode, errMsg)
+                        completion?.onFailure(errCode, errMsg ?: "")
                         CallManager.instance.reset()
                     }
                 })
-                val selfUser = CallManager.instance.userState.selfUser.get()
-                selfUser.id = TUILogin.getLoginUser() ?: ""
-                selfUser.avatar.set(TUILogin.getFaceUrl())
-                selfUser.nickname.set(TUILogin.getNickName())
-                selfUser.callRole = TUICallDefine.Role.Called
-                selfUser.callStatus.set(TUICallDefine.Status.Accept)
-                CallManager.instance.callState.mediaType.set(TUICallDefine.MediaType.Audio)
-                CallManager.instance.callState.scene.set(TUICallDefine.Scene.MULTI_CALL)
-                initCameraAndAudioDeviceState()
-                startCallActivity()
             }
 
             override fun onDenied() {
                 Logger.w(TAG, "join, request Permissions failed")
-                callback?.onError(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
+                completion?.onFailure(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
             }
         })
     }
@@ -215,6 +166,10 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
         CallManager.instance.enableVirtualBackground(enable)
     }
 
+    override fun enableAITranscriber(enable: Boolean) {
+        CallManager.instance.enableAITranscriber(enable)
+    }
+
     override fun enableIncomingBanner(enable: Boolean) {
         CallManager.instance.enableIncomingBanner(enable)
     }
@@ -232,89 +187,6 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
         GlobalState.instance.callAdapter = adapter
     }
 
-    override fun call(userId: String, callMediaType: TUICallDefine.MediaType) {
-        Logger.i(TAG, "call, userId: $userId, mediaType: $callMediaType")
-        val params = CallParams()
-        params.offlinePushInfo = OfflinePushInfoConfig.createOfflinePushInfo(context)
-        params.timeout = Constants.CALL_WAITING_MAX_TIME
-        call(userId, callMediaType, params, null)
-    }
-
-    override fun call(userId: String, mediaType: TUICallDefine.MediaType, params: CallParams?, callback: Callback?) {
-        PermissionRequest.requestPermissions(context, mediaType, object : PermissionCallback() {
-            override fun onGranted() {
-                CallManager.instance.call(userId, mediaType, createDefaultCallParams(params), object : Callback {
-                    override fun onSuccess() {
-                        startCallActivity()
-                        callback?.onSuccess()
-                    }
-
-                    override fun onError(errCode: Int, errMsg: String?) {
-                        callback?.onError(errCode, errMsg)
-                    }
-                })
-            }
-
-            override fun onDenied() {
-                Logger.w(TAG, "call, request Permissions failed")
-                callback?.onError(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
-            }
-        })
-    }
-
-    override fun groupCall(groupId: String, userIdList: List<String?>?, mediaType: TUICallDefine.MediaType) {
-        val params = CallParams()
-        params.offlinePushInfo = OfflinePushInfoConfig.createOfflinePushInfo(context)
-        params.timeout = Constants.CALL_WAITING_MAX_TIME
-        groupCall(groupId, userIdList, mediaType, params, null)
-    }
-
-    override fun groupCall(
-        groupId: String, userIdList: List<String?>?, mediaType: TUICallDefine.MediaType,
-        params: CallParams?, callback: Callback?
-    ) {
-        PermissionRequest.requestPermissions(context, mediaType, object : PermissionCallback() {
-            override fun onGranted() {
-                CallManager.instance.groupCall(groupId, userIdList, mediaType, createDefaultCallParams(params),
-                    object : Callback {
-                        override fun onSuccess() {
-                            startCallActivity()
-                            callback?.onSuccess()
-                        }
-
-                        override fun onError(errCode: Int, errMsg: String?) {
-                            callback?.onError(errCode, errMsg)
-                        }
-                    })
-            }
-
-            override fun onDenied() {
-                Logger.w(TAG, "groupCall, request Permissions failed")
-                callback?.onError(TUICallDefine.ERROR_PERMISSION_DENIED, "request Permissions failed")
-            }
-        })
-    }
-
-    override fun joinInGroupCall(roomId: RoomId?, groupId: String?, mediaType: TUICallDefine.MediaType?) {
-        PermissionRequest.requestPermissions(context, mediaType!!, object : PermissionCallback() {
-            override fun onGranted() {
-                CallManager.instance.joinInGroupCall(roomId, groupId, mediaType, object : Callback {
-                    override fun onSuccess() {
-                        startCallActivity()
-                    }
-
-                    override fun onError(errCode: Int, errMsg: String?) {
-                    }
-                })
-            }
-
-            override fun onDenied() {
-                Logger.w(TAG, "joinInGroupCall, request Permissions failed")
-            }
-        })
-    }
-
-
     fun queryOfflineCall() {
         if (FloatWindowManager.sharedInstance().isShowing) {
             Logger.w(TAG, "queryOfflineCall, float window is showing")
@@ -322,25 +194,55 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
         }
 
         Logger.i(TAG, "queryOfflineCall start")
-        val selfUser = CallManager.instance.userState.selfUser.get()
-        if (TUICallDefine.Status.Accept == selfUser.callStatus.get()) {
+        val selfUser = CallStore.shared.observerState.selfInfo.value
+        val mediaType = CallStore.shared.observerState.activeCall.value.mediaType
+        if (CallParticipantStatus.Accept == selfUser.status) {
             return
         }
 
-        val role = selfUser.callRole
-        val mediaType = CallManager.instance.callState.mediaType.get()
-        if (TUICallDefine.Role.None == role || TUICallDefine.MediaType.Unknown == mediaType) {
+        if (null == mediaType) {
             Logger.w(TAG, "queryOfflineCall, current status is Unknown")
             return
         }
 
         //The received call has been processed in #onCallReceived
-        if (TUICallDefine.Role.Called == role && PermissionRequester.newInstance(PermissionRequester.BG_START_PERMISSION)
-                .has()
-        ) {
+        if (!selfIsCaller() && PermissionRequester.newInstance(PermissionRequester.BG_START_PERMISSION).has()) {
             return
         }
         startCallActivity()
+    }
+
+    private fun registerObserver() {
+        CallStore.shared.addListener(callStatusObserver)
+        subscribeSelfStateJob = CoroutineScope(Dispatchers.Main).launch {
+            supervisorScope {
+                launch { observeSelfInfo() }
+                launch { observeCameraStatus() }
+            }
+        }
+    }
+
+    private suspend fun observeSelfInfo() {
+        CallStore.shared.observerState.selfInfo.collect { selfInfo ->
+            Logger.i(TAG, "selfInfo id=${selfInfo.id} status=${selfInfo.status}")
+            notifyInternalEvent()
+            if (selfInfo.status == CallParticipantStatus.None) {
+                CallManager.instance.reset()
+                return@collect
+            }
+            if (selfInfo.status != CallParticipantStatus.Waiting || selfIsCaller()) {
+                return@collect
+            }
+            handleNewCall()
+        }
+    }
+
+    private suspend fun observeCameraStatus() {
+        DeviceStore.shared().deviceState.cameraLastError.collect { error ->
+            if (error == DeviceError.OCCUPIED_ERROR) {
+                DeviceStore.shared().closeLocalCamera()
+            }
+        }
     }
 
     private fun handleNewCall() {
@@ -402,14 +304,15 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
 
     private fun startFullScreenView() {
         Logger.i(TAG, "startFullScreenView")
-        if (CallManager.instance.userState.selfUser.get().callStatus.get() == TUICallDefine.Status.None) {
+        if (CallStore.shared.observerState.selfInfo.value.status == CallParticipantStatus.None) {
             Logger.i(TAG, "startFullScreenView, current status: None, ignore")
             return
         }
-        PermissionRequest.requestPermissions(context, CallManager.instance.callState.mediaType.get(), object
+        val mediaType = CallStore.shared.observerState.activeCall.value.mediaType
+        PermissionRequest.requestPermissions(context, mediaType, object
             : PermissionCallback() {
             override fun onGranted() {
-                if (TUICallDefine.Status.None != CallManager.instance.userState.selfUser.get().callStatus.get()) {
+                if (CallParticipantStatus.None != CallStore.shared.observerState.selfInfo.value.status) {
                     Logger.i(TAG, "startFullScreenView requestPermissions onGranted")
                     startCallActivity()
                 } else {
@@ -418,8 +321,8 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
             }
 
             override fun onDenied() {
-                if (CallManager.instance.userState.selfUser.get().callRole == TUICallDefine.Role.Called) {
-                    CallManager.instance.reject(null)
+                if (!selfIsCaller()) {
+                    CallStore.shared.reject(null)
                 }
                 CallManager.instance.reset()
             }
@@ -427,24 +330,24 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
     }
 
     private fun startSmallScreenView(view: Any) {
-        var caller = CallManager.instance.userState.selfUser.get()
-        for (user in CallManager.instance.userState.remoteUserList.get()) {
-            if (user.callRole == TUICallDefine.Role.Caller) {
-                caller = user
-                break
-            }
+        if (CallManager.instance.viewState.router.get() == ViewRouter.FullView) {
+            return
         }
+        val inviterId = CallStore.shared.observerState.activeCall.value.inviterId
+        val caller = CallParticipantInfo()
+        caller.id = inviterId
+        val callStatus = CallStore.shared.observerState.selfInfo.value.status
 
         val list = ArrayList<String?>()
         list.add(caller.id)
-        UserManager.instance.updateUserListInfo(list, object : TUICommonDefine.ValueCallback<List<UserState.User>?> {
-            override fun onSuccess(data: List<UserState.User>?) {
-                if (CallManager.instance.userState.selfUser.get().callStatus.get() == TUICallDefine.Status.None) {
+        UserManager.instance.updateUserListInfo(list, object : TUICommonDefine.ValueCallback<List<CallParticipantInfo>?> {
+            override fun onSuccess(data: List<CallParticipantInfo>?) {
+                if (callStatus == CallParticipantStatus.None) {
                     Logger.w(TAG, "startSmallScreenView, current status: None, ignore")
                     return
                 }
-                caller.avatar.set(data!![0].avatar.get())
-                caller.nickname.set(data[0].nickname.get())
+                caller.avatarUrl = data!![0].avatarUrl
+                caller.name = data[0].name
 
                 if (view is IncomingFloatBanner) {
                     view.showIncomingView(caller)
@@ -463,59 +366,6 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
         })
     }
 
-    private fun registerObserver() {
-        TUICallEngine.createInstance(context).addObserver(callObserver)
-        CallManager.instance.userState.selfUser.get().callStatus.observe(callStatusObserver)
-    }
-
-    private fun registerEvent() {
-        TUICore.registerEvent(Constants.KEY_TUI_CALLKIT, Constants.SUB_KEY_SHOW_FLOAT_WINDOW) { key, subKey, _ ->
-            startFloatWindow()
-        }
-        TUICore.registerEvent(
-            TUIConstants.TUILogin.EVENT_LOGIN_STATE_CHANGED, TUIConstants.TUILogin.EVENT_SUB_KEY_USER_LOGIN_SUCCESS,
-            ITUINotification { key, subKey, params ->
-                if (key == TUIConstants.TUILogin.EVENT_LOGIN_STATE_CHANGED
-                    && subKey == TUIConstants.TUILogin.EVENT_SUB_KEY_USER_LOGIN_SUCCESS
-                ) {
-                    if (PermissionRequest.isNotificationEnabled()) {
-                        //TODO: UserGuidance.showUserGuidance()
-                        return@ITUINotification
-                    }
-                    PermissionRequest.requestNotificationPermission(context)
-                }
-            }
-        )
-    }
-
-    private fun startFloatWindow() {
-        if (FloatWindowManager.sharedInstance().isPictureInPictureSupported && GlobalState.instance.enablePipMode) {
-            CallManager.instance.viewState.enterPipMode.set(true)
-            return
-        }
-        if (FloatWindowManager.sharedInstance().isShowing) {
-            Logger.w(TAG, "There is already a floatWindow on display, do not open it again.")
-            return
-        }
-        FloatWindowManager.sharedInstance().addObserver(floatWindowObserver)
-
-        if (PermissionRequester.newInstance(PermissionRequester.FLOAT_PERMISSION).has()) {
-            CallManager.instance.viewState.router.set(ViewState.ViewRouter.FloatView)
-            FloatWindowManager.sharedInstance().show(FloatWindowView(context.applicationContext))
-        } else {
-            PermissionRequester.newInstance(PermissionRequester.FLOAT_PERMISSION).request()
-        }
-    }
-
-    private fun isPictureInPictureSupported(): Boolean {
-        if (TUIBuild.getVersionInt() < Build.VERSION_CODES.O) {
-            return false
-        }
-        return context.packageManager.hasSystemFeature(
-            PackageManager.FEATURE_PICTURE_IN_PICTURE
-        )
-    }
-
     private fun startCallActivity() {
         val intent = Intent(context, CallMainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -523,18 +373,18 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
     }
 
     private fun notifyInternalEvent() {
-        val selfUser = CallManager.instance.userState.selfUser.get()
-        if (selfUser.callStatus.get() == TUICallDefine.Status.None) {
+        val selfUser = CallStore.shared.observerState.selfInfo.value
+        if (selfUser.status == CallParticipantStatus.None) {
             TUICore.notifyEvent(
                 TUIConstants.Privacy.EVENT_ROOM_STATE_CHANGED, TUIConstants.Privacy.EVENT_SUB_KEY_ROOM_STATE_STOP, null
             )
-            if (selfUser.callRole == Role.Caller) {
+            if (selfIsCaller()) {
                 TUICore.notifyEvent(EVENT_KEY_TIME_LIMIT, EVENT_SUB_KEY_COUNTDOWN_END, null)
             }
             return
         }
-        if (selfUser.callStatus.get() == TUICallDefine.Status.Accept) {
-            if (selfUser.callRole == Role.Caller) {
+        if (selfUser.status == CallParticipantStatus.Accept) {
+            if (selfIsCaller()) {
                 TUICore.notifyEvent(EVENT_KEY_TIME_LIMIT, EVENT_SUB_KEY_COUNTDOWN_START, null)
             }
             if (TUICore.getService(TUIConstants.Service.TUI_PRIVACY) != null) {
@@ -547,25 +397,10 @@ class TUICallKitImpl private constructor(context: Context) : TUICallKit() {
         }
     }
 
-    private fun createDefaultCallParams(params: CallParams?): CallParams {
-        val callParams = params ?: CallParams().apply {
-            offlinePushInfo = OfflinePushInfoConfig.createOfflinePushInfo(context)
-            timeout = Constants.CALL_WAITING_MAX_TIME
-        }
-        callParams.offlinePushInfo = callParams.offlinePushInfo ?: OfflinePushInfoConfig.createOfflinePushInfo(context)
-        return callParams
-    }
-
-    private fun initCameraAndAudioDeviceState() {
-        if (TUICallDefine.MediaType.Video == CallManager.instance.callState.mediaType.get()) {
-            CallManager.instance.selectAudioPlaybackDevice(TUICommonDefine.AudioPlaybackDevice.Speakerphone)
-            CallManager.instance.mediaState.isCameraOpened.set(true)
-        } else {
-            CallManager.instance.selectAudioPlaybackDevice(TUICommonDefine.AudioPlaybackDevice.Earpiece)
-            CallManager.instance.mediaState.isCameraOpened.set(false)
-        }
-        CallManager.instance.mediaState.isMicrophoneMuted.set(false)
-        CallManager.instance.userState.selfUser.get().audioAvailable.set(true)
+    private fun selfIsCaller(): Boolean {
+        val selfId = CallStore.shared.observerState.selfInfo.value.id
+        val callerId = CallStore.shared.observerState.activeCall.value.inviterId
+        return selfId == callerId
     }
 
     companion object {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tuicallkit_color_white">
+    android:background="@color/callkit_color_white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_record_title"
@@ -32,12 +32,12 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tuicallkit_record_tab_title_all" />
+                android:text="@string/callkit_record_tab_title_all" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tuicallkit_record_tab_title_miss" />
+                android:text="@string/callkit_record_tab_title_miss" />
         </com.google.android.material.tabs.TabLayout>
 
         <Button
@@ -68,11 +68,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:background="@color/tuicallkit_color_transparent"
+            android:background="@color/callkit_color_transparent"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:padding="5dp"
-            android:text="@string/tuicallkit_record_clear"
+            android:text="@string/callkit_record_clear"
             android:textAllCaps="false"
             android:textColor="?attr/core_header_text_color"
             android:textStyle="bold"
@@ -86,11 +86,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
-            android:background="@color/tuicallkit_color_transparent"
+            android:background="@color/callkit_color_transparent"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:padding="5dp"
-            android:text="@string/tuicallkit_record_done"
+            android:text="@string/callkit_record_done"
             android:textAllCaps="false"
             android:textColor="?attr/core_header_text_color"
             android:textStyle="bold"

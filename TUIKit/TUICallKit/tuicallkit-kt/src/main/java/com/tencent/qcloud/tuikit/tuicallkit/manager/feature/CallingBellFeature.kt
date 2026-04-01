@@ -10,7 +10,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.cloud.tuikit.engine.call.TUICallEngine
 import com.tencent.liteav.audio.TXAudioEffectManager.AudioMusicParam
 import com.tencent.qcloud.tuicore.TUIConfig
@@ -21,44 +20,49 @@ import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Logger
 import com.tencent.qcloud.tuikit.tuicallkit.common.utils.DeviceUtils
 import com.tencent.qcloud.tuikit.tuicallkit.common.utils.PermissionRequest
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
 import com.tencent.qcloud.tuikit.tuicallkit.manager.PushManager
 import com.tencent.qcloud.tuikit.tuicallkit.state.GlobalState
-import com.trtc.tuikit.common.livedata.Observer
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
+import io.trtc.tuikit.atomicxcore.api.call.CallParticipantStatus
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 class CallingBellFeature(context: Context) {
+    private val scope = MainScope()
     private val context: Context = context.applicationContext
     private var mediaPlayer: MediaPlayer? = null
     private var handler: Handler? = null
     private var bellResourceId: Int
     private var bellResourcePath: String = ""
     private var dialPath: String? = null
-
-    private val callStatusObserver = Observer<TUICallDefine.Status> {
-        if (it != TUICallDefine.Status.Waiting) {
-            stopMusic()
-            return@Observer
-        }
-        if (CallManager.instance.userState.selfUser.get().callRole == TUICallDefine.Role.Caller) {
-            startDialingMusic()
-            return@Observer
-        }
-        if (isLocalRingtonePlaybackNeeded()) {
-            startRinging()
-        }
-    }
+    private var isMusicPlaying = false
 
     init {
         bellResourceId = -1
         bellResourcePath = ""
+        isMusicPlaying = false
         registerObserver()
     }
 
-    fun registerObserver() {
-        CallManager.instance.userState.selfUser.get().callStatus.observe(callStatusObserver)
+    private fun registerObserver() {
+        scope.launch {
+            CallStore.shared.observerState.selfInfo.collect { selfInfo ->
+                if (selfInfo.status != CallParticipantStatus.Waiting) {
+                    stopMusic()
+                    return@collect
+                }
+                val self = CallStore.shared.observerState.selfInfo.value.copy()
+                if (isCaller(self.id)) {
+                    startDialingMusic()
+                    return@collect
+                }
+                if (isLocalRingtonePlaybackNeeded()) {
+                    startRinging()
+                }
+            }
+        }
     }
 
     private fun isLocalRingtonePlaybackNeeded(): Boolean {
@@ -97,7 +101,12 @@ class CallingBellFeature(context: Context) {
     }
 
     private fun stopMusic() {
-        if (CallManager.instance.userState.selfUser.get()?.callRole == TUICallDefine.Role.Caller) {
+        if (!isMusicPlaying) {
+            return
+        }
+        isMusicPlaying = false
+        val self = CallStore.shared.observerState.selfInfo.value.copy()
+        if (isCaller(self.id)) {
             TUICallEngine.createInstance(context).trtcCloudInstance.audioEffectManager.stopPlayMusic(AUDIO_DIAL_ID)
         } else {
             stopRinging()
@@ -108,10 +117,15 @@ class CallingBellFeature(context: Context) {
         if (TextUtils.isEmpty(dialPath)) {
             dialPath = getBellPath(context, R.raw.phone_dialing, "phone_dialing.mp3")
         }
+        if (TextUtils.isEmpty(dialPath)) {
+            Logger.e(TAG, "startDialingMusic failed: dialPath is null or empty")
+            return
+        }
         TUICallEngine.createInstance(context).trtcCloudInstance
             .audioEffectManager.setMusicPlayoutVolume(AUDIO_DIAL_ID, 100)
         val param = AudioMusicParam(AUDIO_DIAL_ID, dialPath)
         param.isShortFile = true
+        isMusicPlaying = true
         TUICallEngine.createInstance(context).trtcCloudInstance.audioEffectManager.startPlayMusic(param)
     }
 
@@ -129,6 +143,7 @@ class CallingBellFeature(context: Context) {
         if (!TextUtils.isEmpty(resPath) && isUrl(resPath)) {
             return
         }
+        isMusicPlaying = true
 
         var assetFileDescriptor: AssetFileDescriptor? = null
         if (!TextUtils.isEmpty(resPath) && File(resPath).exists()) {
@@ -203,31 +218,47 @@ class CallingBellFeature(context: Context) {
     }
 
     private fun getBellPath(context: Context, resId: Int, name: String): String? {
-        val savePath = ContextCompat.getExternalFilesDirs(context, null)[0].absolutePath
-        val dir = File(savePath)
-        if (!dir.exists()) {
-            dir.mkdir()
-        }
-        try {
-            val file = File("$savePath/$name")
-            if (file.exists()) {
-                return file.absolutePath
+        val externalDir = ContextCompat.getExternalFilesDirs(context, null).getOrNull(0)
+        externalDir?.let { dir ->
+            tryCopyResourceToPath(context, resId, name, dir.absolutePath)?.let { path ->
+                return path
             }
-            val inputStream = context.resources.openRawResource(resId)
-            val outputStream = FileOutputStream(file)
-            val buffer = ByteArray(2048)
-            var length: Int
-            while (inputStream.read(buffer).also { length = it } > 0) {
-                outputStream.write(buffer, 0, length)
-            }
-            outputStream.flush()
-            outputStream.close()
-            inputStream.close()
-            return file.absolutePath
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
+        val internalDir = context.filesDir.absolutePath
+        tryCopyResourceToPath(context, resId, name, internalDir)?.let { path ->
+            return path
+        }
+
+        Logger.e(TAG, "getBellPath: both external and internal storage failed")
         return null
+    }
+
+    private fun tryCopyResourceToPath(context: Context, resId: Int, name: String, savePath: String): String? {
+        return try {
+            val dir = File(savePath)
+            if (!dir.exists() && !dir.mkdirs()) {
+                Logger.e(TAG, "tryCopyResourceToPath: failed to create directory $savePath")
+                return null
+            }
+
+            val file = File(savePath, name)
+            file.takeIf { it.exists() && it.length() > 0 }?.absolutePath?.let { return it }
+
+            context.resources.openRawResource(resId).use { inputStream ->
+                FileOutputStream(file).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            return file.absolutePath
+        } catch (e: Exception) {
+            Logger.e(TAG, "tryCopyResourceToPath: failed at $savePath e=${e.message}")
+            null
+        }
+    }
+
+    private fun isCaller(userId: String): Boolean {
+        val callerId = CallStore.shared.observerState.activeCall.value.inviterId
+        return callerId == userId
     }
 
     companion object {

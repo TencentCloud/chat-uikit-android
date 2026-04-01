@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.CallRecords
 import com.tencent.qcloud.tuikit.tuicallkit.R
 import com.tencent.qcloud.tuikit.tuicallkit.view.component.recents.interfaces.ICallRecordItemListener
+import io.trtc.tuikit.atomicxcore.api.call.CallInfo
 
 class RecentCallsListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var context: Context
-    private val dataSource: MutableList<CallRecords> = ArrayList()
+    private val dataSource: MutableList<CallInfo> = ArrayList()
     private var itemListener: ICallRecordItemListener? = null
     private val selectedPositions = HashMap<String, Boolean>()
     var isMultiSelectMode = false
@@ -21,7 +21,7 @@ class RecentCallsListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         itemListener = listener
     }
 
-    fun onDataSourceChanged(dataSource: List<CallRecords>?) {
+    fun onDataSourceChanged(dataSource: List<CallInfo>?) {
         dataSource?.let {
             this.dataSource.clear()
             this.dataSource.addAll(it)
@@ -75,7 +75,7 @@ class RecentCallsListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    private fun getItem(position: Int): CallRecords? {
+    private fun getItem(position: Int): CallInfo? {
         if (dataSource.isEmpty()) {
             return null
         }
@@ -111,7 +111,7 @@ class RecentCallsListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    private fun getIndexInAdapter(records: CallRecords): Int {
+    private fun getIndexInAdapter(records: CallInfo): Int {
         var position = -1
         if (dataSource.size > 0) {
             val indexInData = dataSource.indexOf(records)
@@ -139,12 +139,12 @@ class RecentCallsListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         selectedPositions[callId] = isChecked
     }
 
-    val selectedItem: List<CallRecords>?
+    val selectedItem: List<CallInfo>?
         get() {
             if (selectedPositions.size == 0) {
                 return null
             }
-            val selectList: MutableList<CallRecords> = ArrayList()
+            val selectList: MutableList<CallInfo> = ArrayList()
             for (i in 0 until itemCount) {
                 val records = getItem(i)
                 if (records != null && isItemChecked(records.callId)) {

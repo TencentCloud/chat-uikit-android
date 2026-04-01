@@ -1,66 +1,44 @@
-package com.tencent.qcloud.tuikit.tuicallkit.common.utils
+package com.tencent.qcloud.tuikit.tuicallkit.common.metrics
 
 import com.tencent.cloud.tuikit.engine.common.ContextProvider
 import com.tencent.imsdk.v2.V2TIMManager
 import com.tencent.imsdk.v2.V2TIMValueCallback
 import com.tencent.liteav.base.Log
 import com.tencent.qcloud.tuicore.TUIConfig
-import com.tencent.qcloud.tuicore.TUILogin
 import com.tencent.qcloud.tuicore.permission.PermissionRequester
 import com.tencent.qcloud.tuikit.tuicallkit.common.data.Constants
-import com.tencent.qcloud.tuikit.tuicallkit.manager.CallManager
+import com.tencent.qcloud.tuikit.tuicallkit.common.utils.DeviceUtils
+import com.tencent.qcloud.tuikit.tuicallkit.common.utils.PermissionRequest
 import com.tencent.trtc.TRTCCloud
 import com.trtc.tuikit.common.util.TUIBuild
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 object KeyMetrics {
     private const val TAG = "KeyMetrics"
     private const val API_REPORT_ROOM_ENGINE_EVENT = "reportRoomEngineEvent"
-
-    private val hasPendingWakeup = AtomicBoolean(false)
+    private val lastWakeupCallId = AtomicReference<String?>(null)
 
     enum class EventId(val value: Int) {
         RECEIVED(171010),
         WAKEUP(171011),
-        WAKEUP_BY_PUSH(171012),
     }
 
     fun countUV(eventId: EventId, callId: String) {
         when (eventId) {
             EventId.RECEIVED -> {
-                hasPendingWakeup.set(true)
                 countEvent(eventId, callId)
             }
 
             EventId.WAKEUP -> {
-                if (hasPendingWakeup.compareAndSet(true, false)) {
+                val lastCallId = lastWakeupCallId.get()
+                if (lastCallId != callId) {
+                    lastWakeupCallId.set(callId)
                     countEvent(eventId, callId)
                 }
             }
-
-            EventId.WAKEUP_BY_PUSH -> countEvent(eventId, callId)
-        }
-    }
-
-    fun reset() {
-        hasPendingWakeup.set(false)
-    }
-
-    fun flushMetrics() {
-        try {
-            val paramsJson = JSONObject().apply {
-                put("sdkAppId", TUILogin.getSdkAppId())
-                put("report", "report")
-            }
-            val jsonParams = JSONObject().apply {
-                put("api", "KeyMetricsStats")
-                put("params", paramsJson)
-            }
-            TRTCCloud.sharedInstance(ContextProvider.getApplicationContext()).callExperimentalAPI(jsonParams.toString())
-        } catch (e: JSONException) {
-            e.printStackTrace()
         }
     }
 
@@ -108,18 +86,14 @@ object KeyMetrics {
             Log.e(TAG, "trackForTRTC call exception: eventId=$eventId", e)
             e.printStackTrace()
         }
-
-        if (TUILogin.getSdkAppId() > 0) {
-            flushMetrics()
-        }
     }
 
     private fun buildExtensionJson(callId: String): JSONObject {
+        val roomId = CallStore.shared.observerState.activeCall.value.roomId
         return JSONObject().apply {
             // Basic Info
             put(JsonKeys.CALL_ID, callId)
-            put(JsonKeys.INT_ROOM_ID, CallManager.instance.callState.roomId?.intRoomId ?: 0)
-            put(JsonKeys.STR_ROOM_ID, CallManager.instance.callState.roomId?.strRoomId ?: "")
+            put(JsonKeys.STR_ROOM_ID, roomId)
             put(JsonKeys.UI_KIT_VERSION, Constants.VERSION)
 
             // Platform Info
@@ -164,7 +138,6 @@ object KeyMetrics {
 
         // Basic Info Keys
         const val CALL_ID = "call_id"
-        const val INT_ROOM_ID = "int_room_id"
         const val STR_ROOM_ID = "str_room_id"
         const val UI_KIT_VERSION = "ui_kit_version"
 

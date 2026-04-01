@@ -1,51 +1,49 @@
 package com.tencent.qcloud.tuikit.tuicallkit.view.component.recents
 
-import android.content.Context
 import android.text.TextUtils
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.CallRecords
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine.RecentCallsFilter
-import com.tencent.cloud.tuikit.engine.call.TUICallEngine
-import com.tencent.cloud.tuikit.engine.common.TUICommonDefine
 import com.trtc.tuikit.common.livedata.LiveListData
+import io.trtc.tuikit.atomicxcore.api.CompletionHandler
+import io.trtc.tuikit.atomicxcore.api.call.CallDirection
+import io.trtc.tuikit.atomicxcore.api.call.CallInfo
+import io.trtc.tuikit.atomicxcore.api.call.CallStore
 import java.util.concurrent.CopyOnWriteArrayList
 
-class RecentCallsManager(context: Context) {
-    private val context: Context = context.applicationContext
-    var callHistoryList: LiveListData<CallRecords> = LiveListData<CallRecords>(CopyOnWriteArrayList())
-    var callMissedList: LiveListData<CallRecords> = LiveListData<CallRecords>(CopyOnWriteArrayList())
+class RecentCallsManager {
+    var callHistoryList: LiveListData<CallInfo> = LiveListData<CallInfo>(CopyOnWriteArrayList())
+    var callMissedList: LiveListData<CallInfo> = LiveListData<CallInfo>(CopyOnWriteArrayList())
 
-    fun queryRecentCalls(filter: RecentCallsFilter?) {
-        TUICallEngine.createInstance(context).queryRecentCalls(filter, object : TUICommonDefine.ValueCallback<Any?> {
-            override fun onSuccess(data: Any?) {
-                if (data == null || data !is List<*>) {
-                    return
-                }
-                val queryList = data as ArrayList<CallRecords>
-                if (filter != null && CallRecords.Result.Missed == filter.result) {
-                    val missList: ArrayList<CallRecords> = ArrayList(callMissedList.list)
-                    missList.removeAll(queryList)
-                    missList.addAll(queryList)
+    fun queryRecentCalls(filter: CallInfo?) {
+        CallStore.shared.queryRecentCalls("", 0, object : CompletionHandler {
+            override fun onSuccess() {
+                val recentCalls = CallStore.shared.observerState.recentCalls.value
+                if (filter != null && CallDirection.Missed == filter.result) {
+                    val missList: ArrayList<CallInfo> = ArrayList(callMissedList.list)
+                    missList.removeAll(recentCalls)
+                    missList.addAll(recentCalls)
                     callMissedList.replaceAll(missList)
                 } else {
-                    val historyList: ArrayList<CallRecords> = ArrayList(callHistoryList.list)
-                    historyList.removeAll(queryList)
-                    historyList.addAll(queryList)
+                    val historyList: ArrayList<CallInfo> = ArrayList(callHistoryList.list)
+                    historyList.removeAll(recentCalls)
+                    historyList.addAll(recentCalls)
                     callHistoryList.replaceAll(historyList.toList())
                 }
             }
 
-            override fun onError(errCode: Int, errMsg: String) {}
+            override fun onFailure(code: Int, desc: String) {
+
+            }
+
         })
     }
 
-    fun deleteRecordCalls(list: List<CallRecords>?) {
+    fun deleteRecordCalls(list: List<CallInfo>?) {
         if (list.isNullOrEmpty()) {
             return
         }
         val missList = ArrayList(callMissedList.list)
         missList.removeAll(list)
         callMissedList.replaceAll(missList)
-        val allList: MutableList<CallRecords> = ArrayList(callHistoryList.list)
+        val allList: MutableList<CallInfo> = ArrayList(callHistoryList.list)
         allList.removeAll(list)
         callHistoryList.replaceAll(allList)
         val callIdList: MutableList<String> = ArrayList()
@@ -54,10 +52,6 @@ class RecentCallsManager(context: Context) {
                 callIdList.add(record.callId)
             }
         }
-        TUICallEngine.createInstance(context).deleteRecordCalls(callIdList,
-            object : TUICommonDefine.ValueCallback<Any?> {
-                override fun onSuccess(data: Any?) {}
-                override fun onError(errCode: Int, errMsg: String) {}
-            })
+        CallStore.shared.deleteRecentCalls(callIdList, null)
     }
 }

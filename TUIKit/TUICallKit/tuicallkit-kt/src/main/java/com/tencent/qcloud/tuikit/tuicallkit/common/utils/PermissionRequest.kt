@@ -5,7 +5,6 @@ import android.app.AppOpsManager
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import com.tencent.cloud.tuikit.engine.call.TUICallDefine
 import com.tencent.qcloud.tuicore.TUIConfig
 import com.tencent.qcloud.tuicore.TUIConstants
 import com.tencent.qcloud.tuicore.TUICore
@@ -13,19 +12,19 @@ import com.tencent.qcloud.tuicore.permission.PermissionCallback
 import com.tencent.qcloud.tuicore.permission.PermissionRequester
 import com.tencent.qcloud.tuicore.util.TUIBuild
 import com.tencent.qcloud.tuikit.tuicallkit.R
-import com.tencent.qcloud.tuikit.tuicallkit.manager.feature.notification.NotificationRequestActivity
+import io.trtc.tuikit.atomicxcore.api.call.CallMediaType
 
 object PermissionRequest {
-    fun requestPermissions(context: Context, type: TUICallDefine.MediaType, callback: PermissionCallback?) {
-        val title = StringBuilder().append(context.getString(R.string.tuicallkit_permission_microphone))
+    fun requestPermissions(context: Context, type: CallMediaType?, callback: PermissionCallback?) {
+        val title = StringBuilder().append(context.getString(R.string.callkit_permission_microphone))
         val reason = StringBuilder()
         reason.append(getMicrophonePermissionHint(context))
 
         val permissionList: MutableList<String> = ArrayList()
         permissionList.add(Manifest.permission.RECORD_AUDIO)
-        if (TUICallDefine.MediaType.Video == type) {
-            title.append(context.getString(R.string.tuicallkit_permission_separator))
-            title.append(context.getString(R.string.tuicallkit_permission_camera))
+        if (CallMediaType.Video == type) {
+            title.append(context.getString(R.string.callkit_permission_separator))
+            title.append(context.getString(R.string.callkit_permission_camera))
             reason.append(getCameraPermissionHint(context))
             permissionList.add(Manifest.permission.CAMERA)
         }
@@ -52,9 +51,9 @@ object PermissionRequest {
         val applicationInfo = context.applicationInfo
         val appName = context.packageManager.getApplicationLabel(applicationInfo).toString()
         PermissionRequester.newInstance(*permissionList.toTypedArray())
-            .title(context.getString(R.string.tuicallkit_permission_title, appName, title))
+            .title(context.getString(R.string.callkit_permission_title, appName, title))
             .description(reason.toString())
-            .settingsTip("${context.getString(R.string.tuicallkit_permission_tips, title)} $reason".trimIndent())
+            .settingsTip("${context.getString(R.string.callkit_permission_tips, title)} $reason".trimIndent())
             .callback(permissionCallback)
             .request()
     }
@@ -76,14 +75,14 @@ object PermissionRequest {
             }
         }
 
-        val title = context.getString(R.string.tuicallkit_permission_camera)
+        val title = context.getString(R.string.callkit_permission_camera)
         val reason = getCameraPermissionHint(context)
         val appName = context.packageManager.getApplicationLabel(context.applicationInfo).toString()
 
         PermissionRequester.newInstance(Manifest.permission.CAMERA)
-            .title(context.getString(R.string.tuicallkit_permission_title, appName, title))
+            .title(context.getString(R.string.callkit_permission_title, appName, title))
             .description(reason)
-            .settingsTip("${context.getString(R.string.tuicallkit_permission_tips, title)} $reason".trimIndent())
+            .settingsTip("${context.getString(R.string.callkit_permission_tips, title)} $reason".trimIndent())
             .callback(permissionCallback)
             .request()
     }
@@ -102,12 +101,12 @@ object PermissionRequest {
             return
         }
 
-        val title = context.getString(R.string.tuicallkit_permission_bluetooth)
-        val reason = context.getString(R.string.tuicallkit_permission_bluetooth_reason)
+        val title = context.getString(R.string.callkit_permission_bluetooth)
+        val reason = context.getString(R.string.callkit_permission_bluetooth_reason)
         val applicationInfo = context.applicationInfo
         val appName = context.packageManager.getApplicationLabel(applicationInfo).toString()
         PermissionRequester.newInstance(Manifest.permission.BLUETOOTH_CONNECT)
-            .title(context.getString(R.string.tuicallkit_permission_title, appName, title))
+            .title(context.getString(R.string.callkit_permission_title, appName, title))
             .description(reason)
             .settingsTip(reason)
             .callback(object : PermissionCallback() {
@@ -132,7 +131,7 @@ object PermissionRequest {
         return if (!microphonePermissionsDescription.isNullOrEmpty()) {
             microphonePermissionsDescription
         } else {
-            context.getString(R.string.tuicallkit_permission_mic_reason)
+            context.getString(R.string.callkit_permission_mic_reason)
         }
     }
 
@@ -144,7 +143,7 @@ object PermissionRequest {
         return if (!cameraPermissionsDescription.isNullOrEmpty()) {
             cameraPermissionsDescription
         } else {
-            context.getString(R.string.tuicallkit_permission_camera_reason)
+            context.getString(R.string.callkit_permission_camera_reason)
         }
     }
 
@@ -174,9 +173,5 @@ object PermissionRequest {
             }
         }
         return false
-    }
-
-    fun requestNotificationPermission(context: Context) {
-        NotificationRequestActivity.request(context)
     }
 }
