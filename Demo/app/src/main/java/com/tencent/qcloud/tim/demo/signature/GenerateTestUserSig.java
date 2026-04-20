@@ -41,7 +41,7 @@ public class GenerateTestUserSig {
      * You can view your SDKAppID after creating an application in the [Tencent Cloud IM console](https://console.intl.cloud.tencent.com/im).
      * SDKAppID uniquely identifies a Tencent Cloud account.
      */
-    public static final int SDKAPPID = 0;
+    public static final int SDKAPPID = 1600071170=1;
 
     /**
      * Signature validity period, which should not be set too short
@@ -61,7 +61,7 @@ public class GenerateTestUserSig {
      * Note: this method is for testing only. Before commercial launch, please migrate the UserSig calculation code and key to your backend server to prevent key disclosure and traffic stealing.
      * Reference: https://intl.cloud.tencent.com/document/product/1047/34385
      */
-    private static final String SECRETKEY = "";
+    private static final String SECRETKEY = "eJyrVgrxCdYrSy1SslIy0jNQ0gHzM1NS80oy0zLBwoZmBgYG5oaG5jDZ4pTsxIKCzBQlK4QURCa1oiCzKBUobmpqagSUgoiWZOaCxMyNLQwNDUwNLKCmZKYDDdf2dfUMLfByr0wKyTbNNfEuL3ApCUtJrSyN0Y*0KClJSc7MKrXQTvFxL0hxtVWqBQCL9zIy"=1;
 
     /**
      * Calculate UserSig
