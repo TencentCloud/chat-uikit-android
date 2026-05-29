@@ -55,7 +55,7 @@ public class InitSetting {
 
     private void initDemoStyle() {
         final SharedPreferences sharedPreferences = mContext.getSharedPreferences("TUIKIT_DEMO_SETTINGS", mContext.MODE_PRIVATE);
-        AppConfig.DEMO_UI_STYLE = sharedPreferences.getInt("tuikit_demo_style", AppConfig.DEMO_UI_STYLE);
+        AppConfig.DEMO_UI_STYLE = sharedPreferences.getInt("tuikit_demo_style", AppConfig.DEMO_UI_STYLE_CLASSIC);
     }
 
     public void setPermissionRequestContent() {
